@@ -6,6 +6,22 @@ end
 pcall(function() getgenv().IY_LOADED = true end)
 if not game:IsLoaded() then game.Loaded:Wait() end
 
+pcall(function()
+	local mt = getrawmetatable(game)
+	if mt then
+		local old = mt.__namecall
+		setreadonly(mt, false)
+		mt.__namecall = newcclosure(function(self, ...)
+			local method = getnamecallmethod()
+			if method == "Kick" or method == "kick" then
+				return nil
+			end
+			return old(self, ...)
+		end)
+		setreadonly(mt, true)
+	end
+end)
+
 function missing(t, f, fallback)
 	if type(f) == t then return f end
 	return fallback
@@ -145,12 +161,11 @@ if makefolder and isfolder and writefile and isfile then
 				writefile(path, game:HttpGet((path:gsub("infiniteyield/", assets))))
 			end
 		end
-		-- honestly just blame your phone if the assets appear in your gallery
 		if IsOnMobile then writefile("infiniteyield/assets/.nomedia", "") end
 	end)
 end
 
-currentVersion = "6.4.2"
+currentVersion = "7.0.0"
 
 ScaledHolder = Instance.new("Frame")
 Scale = Instance.new("UIScale")
@@ -186,12 +201,14 @@ Description = Instance.new("TextLabel")
 IntroBackground = Instance.new("Frame")
 Logo = Instance.new("ImageLabel")
 Credits = Instance.new("TextBox")
+ThemesFrame = Instance.new("Frame")
 KeybindsFrame = Instance.new("Frame")
 Close = Instance.new("TextButton")
 Add = Instance.new("TextButton")
 Delete = Instance.new("TextButton")
 Holder_2 = Instance.new("ScrollingFrame")
 Example_2 = Instance.new("Frame")
+
 Text_3 = Instance.new("TextLabel")
 Delete_2 = Instance.new("TextButton")
 KeybindEditor = Instance.new("Frame")
@@ -305,14 +322,6 @@ if get_hidden_gui or gethui then
     Main.DisplayOrder = MAX_DISPLAY_ORDER
     Main.Parent = hiddenUI()
     PARENT = Main
-elseif (not is_sirhurt_closure) and (syn and syn.protect_gui) then
-    local Main = Instance.new("ScreenGui")
-    Main.Name = randomString()
-    Main.ResetOnSpawn = false
-    Main.DisplayOrder = MAX_DISPLAY_ORDER
-    syn.protect_gui(Main)
-    Main.Parent = COREGUI
-    PARENT = Main
 elseif COREGUI:FindFirstChild("RobloxGui") then
     PARENT = COREGUI.RobloxGui
 else
@@ -340,62 +349,51 @@ Scale.Name = randomString()
 Holder.Name = randomString()
 Holder.Parent = ScaledHolder
 Holder.Active = true
-Holder.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Holder.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
 Holder.BorderSizePixel = 0
 Holder.Position = UDim2.new(1, -250, 1, -220)
 Holder.Size = UDim2.new(0, 250, 0, 220)
+local HolderCorner = Instance.new("UICorner")
+HolderCorner.CornerRadius = UDim.new(0, 6)
+HolderCorner.Parent = Holder
 Holder.ZIndex = 10
 table.insert(shade2,Holder)
 
+local TitleBar = Instance.new("Frame")
+TitleBar.Name = "TitleBar"
+TitleBar.Parent = Holder
+TitleBar.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+TitleBar.BorderSizePixel = 0
+TitleBar.Size = UDim2.new(0, 250, 0, 20)
+TitleBar.ZIndex = 10
+table.insert(shade1, TitleBar)
+
+local TitleCorner = Instance.new("UICorner")
+TitleCorner.CornerRadius = UDim.new(0, 6)
+TitleCorner.Parent = TitleBar
+
+local TitleGradient = Instance.new("UIGradient")
+TitleGradient.Color = ColorSequence.new(Color3.fromRGB(25, 15, 40), Color3.fromRGB(60, 30, 90))
+TitleGradient.Rotation = 90
+TitleGradient.Parent = TitleBar
+
 Title.Name = "Title"
-Title.Parent = Holder
+Title.Parent = TitleBar
 Title.Active = true
-Title.BackgroundColor3 = Color3.fromRGB(36,36,37)
+Title.BackgroundTransparency = 1
 Title.BorderSizePixel = 0
-Title.Size = UDim2.new(0, 250, 0, 20)
-Title.Font = Enum.Font.SourceSans
-Title.TextSize = 18
-Title.Text = "Infinite Yield FE v" .. currentVersion
-
-do
-	local emoji = ({
-		["01 01"] = "🎆",
-		["02 14"] = "💝",
-		["03 17"] = "☘️",
-		[(function(Year)
-			local A = math.floor(Year/100)
-			local B = math.floor((13+8*A)/25)
-			local C = (15-B+A-math.floor(A/4))%30
-			local D = (4+A-math.floor(A/4))%7
-			local E = (19*(Year%19)+C)%30
-			local F = (2*(Year%4)+4*(Year%7)+6*E+D)%7
-			local G = (22+E+F)
-			if E == 29 and F == 6 then
-				return "04 19"
-			elseif E == 28 and F == 6 then
-				return "04 18"
-			elseif 31 < G then
-				return ("04 %02d"):format(G-31)
-			end
-			return ("03 %02d"):format(G)
-		end)(tonumber(os.date"%Y"))] = "🥚",
-		["10 31"] = "🎃",
-		["12 25"] = "🎄"
-	})[os.date("%m %d")]
-	if emoji then
-		Title.Text = ("%s %s %s"):format(emoji, Title.Text, emoji)
-	end
-end
-
+Title.Size = UDim2.new(1, 0, 1, 0)
+Title.Font = Enum.Font.GothamMedium
+Title.TextSize = 14
+Title.Text = "biy v" .. currentVersion
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.ZIndex = 10
-table.insert(shade1,Title)
 table.insert(text1,Title)
 
 Dark.Name = "Dark"
 Dark.Parent = Holder
 Dark.Active = true
-Dark.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+Dark.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 Dark.BorderSizePixel = 0
 Dark.Position = UDim2.new(0, 0, 0, 45)
 Dark.Size = UDim2.new(0, 250, 0, 175)
@@ -408,8 +406,8 @@ Cmdbar.BackgroundTransparency = 1
 Cmdbar.BorderSizePixel = 0
 Cmdbar.Position = UDim2.new(0, 5, 0, 20)
 Cmdbar.Size = UDim2.new(0, 240, 0, 25)
-Cmdbar.Font = Enum.Font.SourceSans
-Cmdbar.TextSize = 18
+Cmdbar.Font = Enum.Font.GothamMedium
+Cmdbar.TextSize = 14
 Cmdbar.TextXAlignment = Enum.TextXAlignment.Left
 Cmdbar.TextColor3 = Color3.new(1, 1, 1)
 Cmdbar.Text = ""
@@ -422,7 +420,7 @@ CMDsF.BackgroundTransparency = 1
 CMDsF.BorderSizePixel = 0
 CMDsF.Position = UDim2.new(0, 5, 0, 45)
 CMDsF.Size = UDim2.new(0, 245, 0, 175)
-CMDsF.ScrollBarImageColor3 = Color3.fromRGB(78,78,79)
+CMDsF.ScrollBarImageColor3 = Color3.fromRGB(120, 80, 160)
 CMDsF.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 CMDsF.CanvasSize = UDim2.new(0, 0, 0, 0)
 CMDsF.MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
@@ -454,7 +452,7 @@ ReferenceButton.ZIndex = 10
 Settings.Name = "Settings"
 Settings.Parent = Holder
 Settings.Active = true
-Settings.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+Settings.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 Settings.BorderSizePixel = 0
 Settings.Position = UDim2.new(0, 0, 0, 220)
 Settings.Size = UDim2.new(0, 250, 0, 175)
@@ -467,9 +465,9 @@ SettingsHolder.Parent = Settings
 SettingsHolder.BackgroundTransparency = 1
 SettingsHolder.BorderSizePixel = 0
 SettingsHolder.Size = UDim2.new(1,0,1,0)
-SettingsHolder.ScrollBarImageColor3 = Color3.fromRGB(78,78,79)
+SettingsHolder.ScrollBarImageColor3 = Color3.fromRGB(120, 80, 160)
 SettingsHolder.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
-SettingsHolder.CanvasSize = UDim2.new(0, 0, 0, 235)
+SettingsHolder.CanvasSize = UDim2.new(0, 0, 0, 265)
 SettingsHolder.MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 SettingsHolder.ScrollBarThickness = 8
 SettingsHolder.TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
@@ -479,7 +477,7 @@ table.insert(scroll,SettingsHolder)
 
 Prefix.Name = "Prefix"
 Prefix.Parent = SettingsHolder
-Prefix.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Prefix.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Prefix.BorderSizePixel = 0
 Prefix.BackgroundTransparency = 1
 Prefix.Position = UDim2.new(0, 5, 0, 5)
@@ -495,7 +493,7 @@ table.insert(text1,Prefix)
 
 PrefixBox.Name = "PrefixBox"
 PrefixBox.Parent = Prefix
-PrefixBox.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+PrefixBox.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 PrefixBox.BorderSizePixel = 0
 PrefixBox.Position = UDim2.new(1, -20, 0, 0)
 PrefixBox.Size = UDim2.new(0, 20, 0, 20)
@@ -507,14 +505,32 @@ PrefixBox.ZIndex = 10
 table.insert(shade3,PrefixBox)
 table.insert(text2,PrefixBox)
 
+local function styleButton(btn)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 4)
+	corner.Parent = btn
+
+	btn.MouseEnter:Connect(function()
+		local isDark = (currentShade2.R * 0.299 + currentShade2.G * 0.587 + currentShade2.B * 0.114) < 0.5
+		local targetColor = isDark and Color3.new(1, 1, 1) or Color3.new(0, 0, 0)
+		TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = currentShade2:lerp(targetColor, 0.15)}):Play()
+	end)
+	btn.MouseLeave:Connect(function()
+		TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = currentShade2}):Play()
+	end)
+end
+
 function makeSettingsButton(name,iconID,off)
 	local button = Instance.new("TextButton")
-	button.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+	button.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 	button.BorderSizePixel = 0
 	button.Position = UDim2.new(0,0,0,0)
 	button.Size = UDim2.new(1,0,0,25)
 	button.Text = ""
 	button.ZIndex = 10
+	
+	styleButton(button)
+	
 	local icon = Instance.new("ImageLabel")
 	icon.Name = "Icon"
 	icon.Parent = button
@@ -551,21 +567,27 @@ ColorsButton.Size = UDim2.new(1, -10, 0, 25)
 ColorsButton.Name = "Colors"
 ColorsButton.Parent = SettingsHolder
 
+ThemesPresetsButton = makeSettingsButton("Theme Presets",getcustomasset("infiniteyield/assets/edittheme.png"))
+ThemesPresetsButton.Position = UDim2.new(0, 5, 0, 85)
+ThemesPresetsButton.Size = UDim2.new(1, -10, 0, 25)
+ThemesPresetsButton.Name = "Presets"
+ThemesPresetsButton.Parent = SettingsHolder
+
 Keybinds = makeSettingsButton("Edit Keybinds",getcustomasset("infiniteyield/assets/editkeybinds.png"))
-Keybinds.Position = UDim2.new(0, 5, 0, 85)
+Keybinds.Position = UDim2.new(0, 5, 0, 115)
 Keybinds.Size = UDim2.new(1, -10, 0, 25)
 Keybinds.Name = "Keybinds"
 Keybinds.Parent = SettingsHolder
 
 Aliases = makeSettingsButton("Edit Aliases",getcustomasset("infiniteyield/assets/editaliases.png"))
-Aliases.Position = UDim2.new(0, 5, 0, 115)
+Aliases.Position = UDim2.new(0, 5, 0, 145)
 Aliases.Size = UDim2.new(1, -10, 0, 25)
 Aliases.Name = "Aliases"
 Aliases.Parent = SettingsHolder
 
 StayOpen.Name = "StayOpen"
 StayOpen.Parent = SettingsHolder
-StayOpen.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+StayOpen.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 StayOpen.BorderSizePixel = 0
 StayOpen.BackgroundTransparency = 1
 StayOpen.Position = UDim2.new(0, 5, 0, 30)
@@ -581,12 +603,16 @@ table.insert(text1,StayOpen)
 
 Button.Name = "Button"
 Button.Parent = StayOpen
-Button.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+Button.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 Button.BorderSizePixel = 0
 Button.Position = UDim2.new(1, -20, 0, 0)
 Button.Size = UDim2.new(0, 20, 0, 20)
 Button.ZIndex = 10
 table.insert(shade3,Button)
+
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.CornerRadius = UDim.new(0, 4)
+ButtonCorner.Parent = Button
 
 On.Name = "On"
 On.Parent = Button
@@ -602,22 +628,22 @@ On.TextColor3 = Color3.new(0, 0, 0)
 On.ZIndex = 10
 
 Positions = makeSettingsButton("Edit/Goto Waypoints",getcustomasset("infiniteyield/assets/editwaypoints.png"))
-Positions.Position = UDim2.new(0, 5, 0, 145)
+Positions.Position = UDim2.new(0, 5, 0, 175)
 Positions.Size = UDim2.new(1, -10, 0, 25)
 Positions.Name = "Waypoints"
 Positions.Parent = SettingsHolder
 
-EventBind = makeSettingsButton("Edit Event Binds",getcustomasset("infiniteyield/assets/bindsandplugins.png"),759)
-EventBind.Position = UDim2.new(0, 5, 0, 205)
-EventBind.Size = UDim2.new(1, -10, 0, 25)
-EventBind.Name = "EventBinds"
-EventBind.Parent = SettingsHolder
-
 Plugins = makeSettingsButton("Manage Plugins",getcustomasset("infiniteyield/assets/bindsandplugins.png"),743)
-Plugins.Position = UDim2.new(0, 5, 0, 175)
+Plugins.Position = UDim2.new(0, 5, 0, 205)
 Plugins.Size = UDim2.new(1, -10, 0, 25)
 Plugins.Name = "Plugins"
 Plugins.Parent = SettingsHolder
+
+EventBind = makeSettingsButton("Edit Event Binds",getcustomasset("infiniteyield/assets/bindsandplugins.png"),759)
+EventBind.Position = UDim2.new(0, 5, 0, 235)
+EventBind.Size = UDim2.new(1, -10, 0, 25)
+EventBind.Name = "EventBinds"
+EventBind.Parent = SettingsHolder
 
 Example.Name = "Example"
 Example.Parent = Holder
@@ -625,8 +651,8 @@ Example.BackgroundTransparency = 1
 Example.BorderSizePixel = 0
 Example.Size = UDim2.new(0, 190, 0, 20)
 Example.Visible = false
-Example.Font = Enum.Font.SourceSans
-Example.TextSize = 18
+Example.Font = Enum.Font.GothamMedium
+Example.TextSize = 14
 Example.Text = "Example"
 Example.TextColor3 = Color3.new(1, 1, 1)
 Example.TextXAlignment = Enum.TextXAlignment.Left
@@ -635,16 +661,19 @@ table.insert(text1,Example)
 
 Notification.Name = randomString()
 Notification.Parent = ScaledHolder
-Notification.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+Notification.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 Notification.BorderSizePixel = 0
 Notification.Position = UDim2.new(1, -500, 1, 20)
 Notification.Size = UDim2.new(0, 250, 0, 100)
+local NotifCorner = Instance.new("UICorner")
+NotifCorner.CornerRadius = UDim.new(0, 6)
+NotifCorner.Parent = Notification
 Notification.ZIndex = 10
 table.insert(shade1,Notification)
 
 Title_2.Name = "Title"
 Title_2.Parent = Notification
-Title_2.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Title_2.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Title_2.BorderSizePixel = 0
 Title_2.Size = UDim2.new(0, 250, 0, 20)
 Title_2.Font = Enum.Font.SourceSans
@@ -703,7 +732,7 @@ PinImage.Image = getcustomasset("infiniteyield/assets/pin.png")
 Tooltip.Name = randomString()
 Tooltip.Parent = ScaledHolder
 Tooltip.Active = true
-Tooltip.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+Tooltip.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 Tooltip.BackgroundTransparency = 0.1
 Tooltip.BorderSizePixel = 0
 Tooltip.Size = UDim2.new(0, 200, 0, 96)
@@ -713,7 +742,7 @@ table.insert(shade1,Tooltip)
 
 Title_3.Name = "Title"
 Title_3.Parent = Tooltip
-Title_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Title_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Title_3.BackgroundTransparency = 0.1
 Title_3.BorderSizePixel = 0
 Title_3.Size = UDim2.new(0, 200, 0, 20)
@@ -744,7 +773,7 @@ table.insert(text1,Description)
 IntroBackground.Name = "IntroBackground"
 IntroBackground.Parent = Holder
 IntroBackground.Active = true
-IntroBackground.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+IntroBackground.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 IntroBackground.BorderSizePixel = 0
 IntroBackground.Position = UDim2.new(0, 0, 0, 45)
 IntroBackground.Size = UDim2.new(0, 250, 0, 175)
@@ -772,10 +801,195 @@ Credits.Text = "Edge // Zwolf // Moon // Toon // Peyton // ATP"
 Credits.TextColor3 = Color3.new(1, 1, 1)
 Credits.ZIndex = 10
 
+ThemesFrame.Name = "ThemesFrame"
+ThemesFrame.Parent = Settings
+ThemesFrame.Active = true
+ThemesFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+ThemesFrame.BorderSizePixel = 0
+ThemesFrame.Position = UDim2.new(0, 0, 0, 175)
+ThemesFrame.Size = UDim2.new(0, 250, 0, 175)
+ThemesFrame.ZIndex = 10
+table.insert(shade1, ThemesFrame)
+
+local ThemesCorner = Instance.new("UICorner")
+ThemesCorner.CornerRadius = UDim.new(0, 6)
+ThemesCorner.Parent = ThemesFrame
+
+local ThemesClose = Instance.new("TextButton")
+ThemesClose.Name = "Close"
+ThemesClose.Parent = ThemesFrame
+ThemesClose.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+ThemesClose.BorderSizePixel = 0
+ThemesClose.Position = UDim2.new(0, 5, 0, 150)
+ThemesClose.Size = UDim2.new(0, 240, 0, 20)
+ThemesClose.Font = Enum.Font.SourceSans
+ThemesClose.TextSize = 14
+ThemesClose.Text = "Close"
+ThemesClose.TextColor3 = Color3.new(1, 1, 1)
+ThemesClose.ZIndex = 10
+table.insert(shade2, ThemesClose)
+table.insert(text1, ThemesClose)
+styleButton(ThemesClose)
+
+local ThemesHolder = Instance.new("ScrollingFrame")
+ThemesHolder.Name = "Holder"
+ThemesHolder.Parent = ThemesFrame
+ThemesHolder.BackgroundTransparency = 1
+ThemesHolder.BorderSizePixel = 0
+ThemesHolder.Position = UDim2.new(0, 0, 0, 5)
+ThemesHolder.Size = UDim2.new(0, 250, 0, 140)
+ThemesHolder.ScrollBarImageColor3 = Color3.fromRGB(120, 80, 160)
+ThemesHolder.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
+ThemesHolder.CanvasSize = UDim2.new(0, 0, 0, 245)
+ThemesHolder.MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
+ThemesHolder.ScrollBarThickness = 6
+ThemesHolder.TopImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
+ThemesHolder.VerticalScrollBarInset = 'Always'
+ThemesHolder.ZIndex = 10
+table.insert(scroll, ThemesHolder)
+
+local ThemesLayout = Instance.new("UIListLayout")
+ThemesLayout.Parent = ThemesHolder
+ThemesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ThemesLayout.Padding = UDim.new(0, 5)
+
+local presetThemes = {
+	{
+		Name = "Default (Purple)",
+		Shade1 = Color3.fromRGB(15, 15, 20),
+		Shade2 = Color3.fromRGB(20, 20, 25),
+		Shade3 = Color3.fromRGB(120, 80, 160),
+		Text1 = Color3.new(1, 1, 1),
+		Text2 = Color3.new(0, 0, 0),
+		Scroll = Color3.fromRGB(120, 80, 160)
+	},
+	{
+		Name = "Dracula",
+		Shade1 = Color3.fromRGB(30, 30, 46),
+		Shade2 = Color3.fromRGB(40, 40, 60),
+		Shade3 = Color3.fromRGB(189, 147, 249),
+		Text1 = Color3.fromRGB(248, 248, 242),
+		Text2 = Color3.fromRGB(40, 42, 54),
+		Scroll = Color3.fromRGB(139, 233, 253)
+	},
+	{
+		Name = "Sakura (Pink)",
+		Shade1 = Color3.fromRGB(255, 240, 245),
+		Shade2 = Color3.fromRGB(255, 218, 224),
+		Shade3 = Color3.fromRGB(255, 105, 180),
+		Text1 = Color3.fromRGB(75, 0, 130),
+		Text2 = Color3.fromRGB(255, 255, 255),
+		Scroll = Color3.fromRGB(255, 182, 193)
+	},
+	{
+		Name = "Cyberpunk",
+		Shade1 = Color3.fromRGB(10, 10, 15),
+		Shade2 = Color3.fromRGB(20, 15, 30),
+		Shade3 = Color3.fromRGB(243, 243, 21),
+		Text1 = Color3.fromRGB(0, 255, 255),
+		Text2 = Color3.fromRGB(10, 10, 15),
+		Scroll = Color3.fromRGB(255, 0, 127)
+	},
+	{
+		Name = "Tokyo Night",
+		Shade1 = Color3.fromRGB(26, 27, 38),
+		Shade2 = Color3.fromRGB(36, 40, 59),
+		Shade3 = Color3.fromRGB(122, 162, 247),
+		Text1 = Color3.fromRGB(169, 177, 214),
+		Text2 = Color3.fromRGB(26, 27, 38),
+		Scroll = Color3.fromRGB(247, 118, 142)
+	},
+	{
+		Name = "Ocean",
+		Shade1 = Color3.fromRGB(10, 25, 47),
+		Shade2 = Color3.fromRGB(17, 34, 64),
+		Shade3 = Color3.fromRGB(100, 255, 218),
+		Text1 = Color3.fromRGB(136, 146, 176),
+		Text2 = Color3.fromRGB(10, 25, 47),
+		Scroll = Color3.fromRGB(100, 255, 218)
+	},
+	{
+		Name = "Forest",
+		Shade1 = Color3.fromRGB(20, 30, 20),
+		Shade2 = Color3.fromRGB(30, 45, 30),
+		Shade3 = Color3.fromRGB(140, 190, 140),
+		Text1 = Color3.fromRGB(230, 240, 230),
+		Text2 = Color3.fromRGB(20, 30, 20),
+		Scroll = Color3.fromRGB(140, 190, 140)
+	},
+	{
+		Name = "Nord",
+		Shade1 = Color3.fromRGB(46, 52, 64),
+		Shade2 = Color3.fromRGB(59, 66, 82),
+		Shade3 = Color3.fromRGB(136, 192, 208),
+		Text1 = Color3.fromRGB(236, 239, 244),
+		Text2 = Color3.fromRGB(46, 52, 64),
+		Scroll = Color3.fromRGB(143, 188, 187)
+	}
+}
+
+local function applyPresetTheme(s1, s2, s3, t1, t2, sc)
+	updateColors(s1, shade1)
+	updateColors(s2, shade2)
+	updateColors(s3, shade3)
+	updateColors(t1, text1)
+	updateColors(t2, text2)
+	updateColors(sc, scroll)
+	task.wait()
+	updatesaves()
+end
+
+for _, theme in ipairs(presetThemes) do
+	local btn = Instance.new("TextButton")
+	btn.Name = theme.Name
+	btn.Parent = ThemesHolder
+	btn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+	btn.BorderSizePixel = 0
+	btn.Size = UDim2.new(1, -10, 0, 25)
+	btn.Font = Enum.Font.SourceSans
+	btn.TextSize = 14
+	btn.Text = "  " .. theme.Name
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.TextXAlignment = Enum.TextXAlignment.Left
+	btn.ZIndex = 10
+	table.insert(shade2, btn)
+	table.insert(text1, btn)
+	styleButton(btn)
+
+	local dotContainer = Instance.new("Frame")
+	dotContainer.Name = "Dots"
+	dotContainer.Parent = btn
+	dotContainer.BackgroundTransparency = 1
+	dotContainer.Position = UDim2.new(1, -65, 0, 4)
+	dotContainer.Size = UDim2.new(0, 60, 0, 17)
+	dotContainer.ZIndex = 10
+
+	local function createDot(color, posX)
+		local dot = Instance.new("Frame")
+		dot.Parent = dotContainer
+		dot.BackgroundColor3 = color
+		dot.BorderSizePixel = 0
+		dot.Position = UDim2.new(0, posX, 0, 2)
+		dot.Size = UDim2.new(0, 13, 0, 13)
+		dot.ZIndex = 10
+		local dotCorner = Instance.new("UICorner")
+		dotCorner.CornerRadius = UDim.new(1, 0)
+		dotCorner.Parent = dot
+	end
+	createDot(theme.Shade1, 0)
+	createDot(theme.Shade3, 18)
+	createDot(theme.Text1, 36)
+
+	btn.MouseButton1Click:Connect(function()
+		applyPresetTheme(theme.Shade1, theme.Shade2, theme.Shade3, theme.Text1, theme.Text2, theme.Scroll)
+		notify("Theme Applied", "Switched to " .. theme.Name .. " theme.")
+	end)
+end
+
 KeybindsFrame.Name = "KeybindsFrame"
 KeybindsFrame.Parent = Settings
 KeybindsFrame.Active = true
-KeybindsFrame.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+KeybindsFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 KeybindsFrame.BorderSizePixel = 0
 KeybindsFrame.Position = UDim2.new(0, 0, 0, 175)
 KeybindsFrame.Size = UDim2.new(0, 250, 0, 175)
@@ -784,7 +998,7 @@ table.insert(shade1,KeybindsFrame)
 
 Close.Name = "Close"
 Close.Parent = KeybindsFrame
-Close.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Close.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Close.BorderSizePixel = 0
 Close.Position = UDim2.new(0, 205, 0, 150)
 Close.Size = UDim2.new(0, 40, 0, 20)
@@ -795,10 +1009,11 @@ Close.TextColor3 = Color3.new(1, 1, 1)
 Close.ZIndex = 10
 table.insert(shade2,Close)
 table.insert(text1,Close)
+styleButton(Close)
 
 Add.Name = "Add"
 Add.Parent = KeybindsFrame
-Add.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Add.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Add.BorderSizePixel = 0
 Add.Position = UDim2.new(0, 5, 0, 150)
 Add.Size = UDim2.new(0, 40, 0, 20)
@@ -809,10 +1024,11 @@ Add.TextColor3 = Color3.new(1, 1, 1)
 Add.ZIndex = 10
 table.insert(shade2,Add)
 table.insert(text1,Add)
+styleButton(Add)
 
 Delete.Name = "Delete"
 Delete.Parent = KeybindsFrame
-Delete.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Delete.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Delete.BorderSizePixel = 0
 Delete.Position = UDim2.new(0, 50, 0, 150)
 Delete.Size = UDim2.new(0, 40, 0, 20)
@@ -823,6 +1039,7 @@ Delete.TextColor3 = Color3.new(1, 1, 1)
 Delete.ZIndex = 10
 table.insert(shade2,Delete)
 table.insert(text1,Delete)
+styleButton(Delete)
 
 Holder_2.Name = "Holder"
 Holder_2.Parent = KeybindsFrame
@@ -830,7 +1047,7 @@ Holder_2.BackgroundTransparency = 1
 Holder_2.BorderSizePixel = 0
 Holder_2.Position = UDim2.new(0, 0, 0, 0)
 Holder_2.Size = UDim2.new(0, 250, 0, 145)
-Holder_2.ScrollBarImageColor3 = Color3.fromRGB(78,78,79)
+Holder_2.ScrollBarImageColor3 = Color3.fromRGB(120, 80, 160)
 Holder_2.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 Holder_2.CanvasSize = UDim2.new(0, 0, 0, 0)
 Holder_2.MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
@@ -841,7 +1058,7 @@ Holder_2.ZIndex = 10
 
 Example_2.Name = "Example"
 Example_2.Parent = KeybindsFrame
-Example_2.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Example_2.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Example_2.BorderSizePixel = 0
 Example_2.Size = UDim2.new(0, 10, 0, 20)
 Example_2.Visible = false
@@ -850,7 +1067,7 @@ table.insert(shade2,Example_2)
 
 Text_3.Name = "Text"
 Text_3.Parent = Example_2
-Text_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Text_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Text_3.BorderSizePixel = 0
 Text_3.Position = UDim2.new(0, 10, 0, 0)
 Text_3.Size = UDim2.new(0, 240, 0, 20)
@@ -865,7 +1082,7 @@ table.insert(text1,Text_3)
 
 Delete_2.Name = "Delete"
 Delete_2.Parent = Text_3
-Delete_2.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+Delete_2.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 Delete_2.BorderSizePixel = 0
 Delete_2.Position = UDim2.new(0, 200, 0, 0)
 Delete_2.Size = UDim2.new(0, 40, 0, 20)
@@ -888,7 +1105,7 @@ KeybindEditor.ZIndex = 10
 background_2.Name = "background"
 background_2.Parent = KeybindEditor
 background_2.Active = true
-background_2.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+background_2.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 background_2.BorderSizePixel = 0
 background_2.Position = UDim2.new(0, 0, 0, 20)
 background_2.Size = UDim2.new(0, 360, 0, 185)
@@ -898,7 +1115,7 @@ table.insert(shade1,background_2)
 Dark_3.Name = "Dark"
 Dark_3.Parent = background_2
 Dark_3.Active = true
-Dark_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Dark_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Dark_3.BorderSizePixel = 0
 Dark_3.Position = UDim2.new(0, 135, 0, 0)
 Dark_3.Size = UDim2.new(0, 2, 0, 185)
@@ -922,7 +1139,7 @@ table.insert(text1,Directions)
 
 BindTo.Name = "BindTo"
 BindTo.Parent = background_2
-BindTo.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+BindTo.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 BindTo.BorderSizePixel = 0
 BindTo.Position = UDim2.new(0, 10, 0, 95)
 BindTo.Size = UDim2.new(0, 115, 0, 50)
@@ -949,7 +1166,7 @@ table.insert(text1,TriggerLabel)
 
 BindTriggerSelect.Name = "BindTo"
 BindTriggerSelect.Parent = background_2
-BindTriggerSelect.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+BindTriggerSelect.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 BindTriggerSelect.BorderSizePixel = 0
 BindTriggerSelect.Position = UDim2.new(0, 60, 0, 155)
 BindTriggerSelect.Size = UDim2.new(0, 65, 0, 20)
@@ -963,7 +1180,7 @@ table.insert(text1,BindTriggerSelect)
 
 Add_2.Name = "Add"
 Add_2.Parent = background_2
-Add_2.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Add_2.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Add_2.BorderSizePixel = 0
 Add_2.Position = UDim2.new(0, 310, 0, 35)
 Add_2.Size = UDim2.new(0, 40, 0, 20)
@@ -991,7 +1208,7 @@ table.insert(scroll,Toggles)
 
 ClickTP.Name = "Click TP (Hold Key & Click)"
 ClickTP.Parent = Toggles
-ClickTP.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+ClickTP.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 ClickTP.BorderSizePixel = 0
 ClickTP.Size = UDim2.new(0, 200, 0, 20)
 ClickTP.ZIndex = 10
@@ -1005,7 +1222,7 @@ table.insert(text1,ClickTP)
 
 Select.Name = "Select"
 Select.Parent = ClickTP
-Select.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+Select.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 Select.BorderSizePixel = 0
 Select.Position = UDim2.new(0, 160, 0, 0)
 Select.Size = UDim2.new(0, 40, 0, 20)
@@ -1019,7 +1236,7 @@ table.insert(text2,Select)
 
 ClickDelete.Name = "Click Delete (Hold Key & Click)"
 ClickDelete.Parent = Toggles
-ClickDelete.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+ClickDelete.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 ClickDelete.BorderSizePixel = 0
 ClickDelete.Position = UDim2.new(0, 0, 0, 25)
 ClickDelete.Size = UDim2.new(0, 200, 0, 20)
@@ -1034,7 +1251,7 @@ table.insert(text1,ClickDelete)
 
 Select_2.Name = "Select"
 Select_2.Parent = ClickDelete
-Select_2.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+Select_2.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 Select_2.BorderSizePixel = 0
 Select_2.Position = UDim2.new(0, 160, 0, 0)
 Select_2.Size = UDim2.new(0, 40, 0, 20)
@@ -1048,7 +1265,7 @@ table.insert(text2,Select_2)
 
 Cmdbar_2.Name = "Cmdbar_2"
 Cmdbar_2.Parent = background_2
-Cmdbar_2.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Cmdbar_2.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Cmdbar_2.BorderSizePixel = 0
 Cmdbar_2.Position = UDim2.new(0, 150, 0, 35)
 Cmdbar_2.Size = UDim2.new(0, 150, 0, 20)
@@ -1062,7 +1279,7 @@ Cmdbar_2.TextXAlignment = Enum.TextXAlignment.Left
 
 Cmdbar_3.Name = "Cmdbar_3"
 Cmdbar_3.Parent = background_2
-Cmdbar_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Cmdbar_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Cmdbar_3.BorderSizePixel = 0
 Cmdbar_3.Position = UDim2.new(0, 150, 0, 60)
 Cmdbar_3.Size = UDim2.new(0, 150, 0, 20)
@@ -1076,7 +1293,7 @@ Cmdbar_3.TextXAlignment = Enum.TextXAlignment.Left
 
 CreateToggle.Name = "CreateToggle"
 CreateToggle.Parent = background_2
-CreateToggle.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+CreateToggle.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 CreateToggle.BackgroundTransparency = 1
 CreateToggle.BorderSizePixel = 0
 CreateToggle.Position = UDim2.new(0, 152, 0, 10)
@@ -1091,7 +1308,7 @@ table.insert(text1,CreateToggle)
 
 Button_2.Name = "Button"
 Button_2.Parent = CreateToggle
-Button_2.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+Button_2.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 Button_2.BorderSizePixel = 0
 Button_2.Position = UDim2.new(1, -20, 0, 0)
 Button_2.Size = UDim2.new(0, 20, 0, 20)
@@ -1113,7 +1330,7 @@ On_2.TextSize = 14.000
 
 shadow_2.Name = "shadow"
 shadow_2.Parent = KeybindEditor
-shadow_2.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+shadow_2.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 shadow_2.BorderSizePixel = 0
 shadow_2.Size = UDim2.new(0, 360, 0, 20)
 shadow_2.ZIndex = 10
@@ -1150,7 +1367,7 @@ ExitImage_2.Image = getcustomasset("infiniteyield/assets/close.png")
 PositionsFrame.Name = "PositionsFrame"
 PositionsFrame.Parent = Settings
 PositionsFrame.Active = true
-PositionsFrame.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+PositionsFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 PositionsFrame.BorderSizePixel = 0
 PositionsFrame.Size = UDim2.new(0, 250, 0, 175)
 PositionsFrame.Position = UDim2.new(0, 0, 0, 175)
@@ -1159,7 +1376,7 @@ table.insert(shade1,PositionsFrame)
 
 Close_3.Name = "Close"
 Close_3.Parent = PositionsFrame
-Close_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Close_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Close_3.BorderSizePixel = 0
 Close_3.Position = UDim2.new(0, 205, 0, 150)
 Close_3.Size = UDim2.new(0, 40, 0, 20)
@@ -1170,10 +1387,11 @@ Close_3.TextColor3 = Color3.new(1, 1, 1)
 Close_3.ZIndex = 10
 table.insert(shade2,Close_3)
 table.insert(text1,Close_3)
+styleButton(Close_3)
 
 Delete_5.Name = "Delete"
 Delete_5.Parent = PositionsFrame
-Delete_5.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Delete_5.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Delete_5.BorderSizePixel = 0
 Delete_5.Position = UDim2.new(0, 50, 0, 150)
 Delete_5.Size = UDim2.new(0, 40, 0, 20)
@@ -1184,10 +1402,11 @@ Delete_5.TextColor3 = Color3.new(1, 1, 1)
 Delete_5.ZIndex = 10
 table.insert(shade2,Delete_5)
 table.insert(text1,Delete_5)
+styleButton(Delete_5)
 
 Part.Name = "PartGoto"
 Part.Parent = PositionsFrame
-Part.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Part.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Part.BorderSizePixel = 0
 Part.Position = UDim2.new(0, 5, 0, 150)
 Part.Size = UDim2.new(0, 40, 0, 20)
@@ -1198,6 +1417,7 @@ Part.TextColor3 = Color3.new(1, 1, 1)
 Part.ZIndex = 10
 table.insert(shade2,Part)
 table.insert(text1,Part)
+styleButton(Part)
 
 Holder_4.Name = "Holder"
 Holder_4.Parent = PositionsFrame
@@ -1206,7 +1426,7 @@ Holder_4.BorderSizePixel = 0
 Holder_4.Position = UDim2.new(0, 0, 0, 0)
 Holder_4.Selectable = false
 Holder_4.Size = UDim2.new(0, 250, 0, 145)
-Holder_4.ScrollBarImageColor3 = Color3.fromRGB(78,78,79)
+Holder_4.ScrollBarImageColor3 = Color3.fromRGB(120, 80, 160)
 Holder_4.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 Holder_4.CanvasSize = UDim2.new(0, 0, 0, 0)
 Holder_4.MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
@@ -1217,7 +1437,7 @@ Holder_4.ZIndex = 10
 
 Example_4.Name = "Example"
 Example_4.Parent = PositionsFrame
-Example_4.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Example_4.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Example_4.BorderSizePixel = 0
 Example_4.Size = UDim2.new(0, 10, 0, 20)
 Example_4.Visible = false
@@ -1227,7 +1447,7 @@ table.insert(shade2,Example_4)
 
 Text_5.Name = "Text"
 Text_5.Parent = Example_4
-Text_5.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Text_5.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Text_5.BorderSizePixel = 0
 Text_5.Position = UDim2.new(0, 10, 0, 0)
 Text_5.Size = UDim2.new(0, 240, 0, 20)
@@ -1242,7 +1462,7 @@ table.insert(text1,Text_5)
 
 Delete_6.Name = "Delete"
 Delete_6.Parent = Text_5
-Delete_6.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+Delete_6.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 Delete_6.BorderSizePixel = 0
 Delete_6.Position = UDim2.new(0, 200, 0, 0)
 Delete_6.Size = UDim2.new(0, 40, 0, 20)
@@ -1256,7 +1476,7 @@ table.insert(text2,Delete_6)
 
 TP.Name = "TP"
 TP.Parent = Text_5
-TP.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+TP.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 TP.BorderSizePixel = 0
 TP.Position = UDim2.new(0, 155, 0, 0)
 TP.Size = UDim2.new(0, 40, 0, 20)
@@ -1271,7 +1491,7 @@ table.insert(text2,TP)
 AliasesFrame.Name = "AliasesFrame"
 AliasesFrame.Parent = Settings
 AliasesFrame.Active = true
-AliasesFrame.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+AliasesFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 AliasesFrame.BorderSizePixel = 0
 AliasesFrame.Position = UDim2.new(0, 0, 0, 175)
 AliasesFrame.Size = UDim2.new(0, 250, 0, 175)
@@ -1280,7 +1500,7 @@ table.insert(shade1,AliasesFrame)
 
 Close_2.Name = "Close"
 Close_2.Parent = AliasesFrame
-Close_2.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Close_2.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Close_2.BorderSizePixel = 0
 Close_2.Position = UDim2.new(0, 205, 0, 150)
 Close_2.Size = UDim2.new(0, 40, 0, 20)
@@ -1291,10 +1511,11 @@ Close_2.TextColor3 = Color3.new(1, 1, 1)
 Close_2.ZIndex = 10
 table.insert(shade2,Close_2)
 table.insert(text1,Close_2)
+styleButton(Close_2)
 
 Delete_3.Name = "Delete"
 Delete_3.Parent = AliasesFrame
-Delete_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Delete_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Delete_3.BorderSizePixel = 0
 Delete_3.Position = UDim2.new(0, 5, 0, 150)
 Delete_3.Size = UDim2.new(0, 40, 0, 20)
@@ -1305,6 +1526,7 @@ Delete_3.TextColor3 = Color3.new(1, 1, 1)
 Delete_3.ZIndex = 10
 table.insert(shade2,Delete_3)
 table.insert(text1,Delete_3)
+styleButton(Delete_3)
 
 Holder_3.Name = "Holder"
 Holder_3.Parent = AliasesFrame
@@ -1312,7 +1534,7 @@ Holder_3.BackgroundTransparency = 1
 Holder_3.BorderSizePixel = 0
 Holder_3.Position = UDim2.new(0, 0, 0, 0)
 Holder_3.Size = UDim2.new(0, 250, 0, 145)
-Holder_3.ScrollBarImageColor3 = Color3.fromRGB(78,78,79)
+Holder_3.ScrollBarImageColor3 = Color3.fromRGB(120, 80, 160)
 Holder_3.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 Holder_3.CanvasSize = UDim2.new(0, 0, 0, 0)
 Holder_3.MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
@@ -1323,7 +1545,7 @@ Holder_3.ZIndex = 10
 
 Example_3.Name = "Example"
 Example_3.Parent = AliasesFrame
-Example_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Example_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Example_3.BorderSizePixel = 0
 Example_3.Size = UDim2.new(0, 10, 0, 20)
 Example_3.Visible = false
@@ -1332,7 +1554,7 @@ table.insert(shade2,Example_3)
 
 Text_4.Name = "Text"
 Text_4.Parent = Example_3
-Text_4.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Text_4.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Text_4.BorderSizePixel = 0
 Text_4.Position = UDim2.new(0, 10, 0, 0)
 Text_4.Size = UDim2.new(0, 240, 0, 20)
@@ -1347,7 +1569,7 @@ table.insert(text1,Text_4)
 
 Delete_4.Name = "Delete"
 Delete_4.Parent = Text_4
-Delete_4.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+Delete_4.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 Delete_4.BorderSizePixel = 0
 Delete_4.Position = UDim2.new(0, 200, 0, 0)
 Delete_4.Size = UDim2.new(0, 40, 0, 20)
@@ -1362,7 +1584,7 @@ table.insert(text2,Delete_4)
 PluginsFrame.Name = "PluginsFrame"
 PluginsFrame.Parent = Settings
 PluginsFrame.Active = true
-PluginsFrame.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+PluginsFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 PluginsFrame.BorderSizePixel = 0
 PluginsFrame.Position = UDim2.new(0, 0, 0, 175)
 PluginsFrame.Size = UDim2.new(0, 250, 0, 175)
@@ -1371,7 +1593,7 @@ table.insert(shade1,PluginsFrame)
 
 Close_4.Name = "Close"
 Close_4.Parent = PluginsFrame
-Close_4.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Close_4.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Close_4.BorderSizePixel = 0
 Close_4.Position = UDim2.new(0, 205, 0, 150)
 Close_4.Size = UDim2.new(0, 40, 0, 20)
@@ -1385,7 +1607,7 @@ table.insert(text1,Close_4)
 
 Add_3.Name = "Add"
 Add_3.Parent = PluginsFrame
-Add_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Add_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Add_3.BorderSizePixel = 0
 Add_3.Position = UDim2.new(0, 5, 0, 150)
 Add_3.Size = UDim2.new(0, 40, 0, 20)
@@ -1404,7 +1626,7 @@ Holder_5.BorderSizePixel = 0
 Holder_5.Position = UDim2.new(0, 0, 0, 0)
 Holder_5.Selectable = false
 Holder_5.Size = UDim2.new(0, 250, 0, 145)
-Holder_5.ScrollBarImageColor3 = Color3.fromRGB(78,78,79)
+Holder_5.ScrollBarImageColor3 = Color3.fromRGB(120, 80, 160)
 Holder_5.BottomImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
 Holder_5.CanvasSize = UDim2.new(0, 0, 0, 0)
 Holder_5.MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png"
@@ -1415,7 +1637,7 @@ Holder_5.ZIndex = 10
 
 Example_5.Name = "Example"
 Example_5.Parent = PluginsFrame
-Example_5.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Example_5.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Example_5.BorderSizePixel = 0
 Example_5.Size = UDim2.new(0, 10, 0, 20)
 Example_5.Visible = false
@@ -1424,7 +1646,7 @@ table.insert(shade2,Example_5)
 
 Text_6.Name = "Text"
 Text_6.Parent = Example_5
-Text_6.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Text_6.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Text_6.BorderSizePixel = 0
 Text_6.Position = UDim2.new(0, 10, 0, 0)
 Text_6.Size = UDim2.new(0, 240, 0, 20)
@@ -1439,7 +1661,7 @@ table.insert(text1,Text_6)
 
 Delete_7.Name = "Delete"
 Delete_7.Parent = Text_6
-Delete_7.BackgroundColor3 = Color3.fromRGB(78, 78, 79)
+Delete_7.BackgroundColor3 = Color3.fromRGB(120, 80, 160)
 Delete_7.BorderSizePixel = 0
 Delete_7.Position = UDim2.new(0, 200, 0, 0)
 Delete_7.Size = UDim2.new(0, 40, 0, 20)
@@ -1463,7 +1685,7 @@ PluginEditor.ZIndex = 10
 background_3.Name = "background"
 background_3.Parent = PluginEditor
 background_3.Active = true
-background_3.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+background_3.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 background_3.BorderSizePixel = 0
 background_3.Position = UDim2.new(0, 0, 0, 20)
 background_3.Size = UDim2.new(0, 360, 0, 160)
@@ -1473,7 +1695,7 @@ table.insert(shade1,background_3)
 Dark_2.Name = "Dark"
 Dark_2.Parent = background_3
 Dark_2.Active = true
-Dark_2.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+Dark_2.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 Dark_2.BorderSizePixel = 0
 Dark_2.Position = UDim2.new(0, 222, 0, 0)
 Dark_2.Size = UDim2.new(0, 2, 0, 160)
@@ -1490,7 +1712,7 @@ Img.ZIndex = 10
 
 AddPlugin.Name = "AddPlugin"
 AddPlugin.Parent = background_3
-AddPlugin.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+AddPlugin.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 AddPlugin.BorderSizePixel = 0
 AddPlugin.Position = UDim2.new(0, 235, 0, 100)
 AddPlugin.Size = UDim2.new(0, 115, 0, 50)
@@ -1504,7 +1726,7 @@ table.insert(text1,AddPlugin)
 
 FileName.Name = "FileName"
 FileName.Parent = background_3
-FileName.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+FileName.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 FileName.BorderSizePixel = 0
 FileName.Position = UDim2.new(0.028, 0, 0.625, 0)
 FileName.Size = UDim2.new(0, 200, 0, 50)
@@ -1548,7 +1770,7 @@ table.insert(text1,Directions_2)
 
 shadow_3.Name = "shadow"
 shadow_3.Parent = PluginEditor
-shadow_3.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+shadow_3.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 shadow_3.BorderSizePixel = 0
 shadow_3.Size = UDim2.new(0, 360, 0, 20)
 shadow_3.ZIndex = 10
@@ -1638,7 +1860,7 @@ ToPartFrame.ZIndex = 10
 background_4.Name = "background"
 background_4.Parent = ToPartFrame
 background_4.Active = true
-background_4.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+background_4.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 background_4.BorderSizePixel = 0
 background_4.Position = UDim2.new(0, 0, 0, 20)
 background_4.Size = UDim2.new(0, 360, 0, 117)
@@ -1647,7 +1869,7 @@ table.insert(shade1,background_4)
 
 ChoosePart.Name = "ChoosePart"
 ChoosePart.Parent = background_4
-ChoosePart.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+ChoosePart.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 ChoosePart.BorderSizePixel = 0
 ChoosePart.Position = UDim2.new(0, 100, 0, 55)
 ChoosePart.Size = UDim2.new(0, 75, 0, 30)
@@ -1661,7 +1883,7 @@ table.insert(text1,ChoosePart)
 
 CopyPath.Name = "CopyPath"
 CopyPath.Parent = background_4
-CopyPath.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+CopyPath.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 CopyPath.BorderSizePixel = 0
 CopyPath.Position = UDim2.new(0, 185, 0, 55)
 CopyPath.Size = UDim2.new(0, 75, 0, 30)
@@ -1706,7 +1928,7 @@ table.insert(text1,Path)
 
 shadow_4.Name = "shadow"
 shadow_4.Parent = ToPartFrame
-shadow_4.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+shadow_4.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 shadow_4.BorderSizePixel = 0
 shadow_4.Size = UDim2.new(0, 360, 0, 20)
 shadow_4.ZIndex = 10
@@ -2187,10 +2409,10 @@ function writefileCooldown(name,data)
 			cooldown = true
 			writefile(name, data, true)
 		else
-			repeat wait() until cooldown == false
+			repeat task.wait() until cooldown == false
 			writefileCooldown(name,data)
 		end
-		wait(3)
+		task.wait(3)
 		cooldown = false
 	end)
 end
@@ -2284,7 +2506,7 @@ eventEditor = (function()
 							cmdStr = cmdStr:gsub("%$"..count,arg)
 						end
 						if cmdStr:lower():match("plugin") then return end
-						wait(cmd[3] or 0)
+						task.wait(cmd[3] or 0)
 						execCmd(cmdStr)
 					end))
 				end
@@ -2905,9 +3127,9 @@ reference = (function()
 		else
 			inviteButton.Text = "No Clipboard Function, type out the link"
 		end
-		local pressTime = tick()
+		local pressTime = os.clock()
 		lastPress = pressTime
-		wait(2)
+		task.wait(2)
 		if lastPress ~= pressTime then return end
 		inviteButton.Text = "Copy Discord Invite Link (https://discord.gg/78ZuWSq)"
 	end)
@@ -2919,12 +3141,12 @@ reference = (function()
 	end)
 end)()
 
-currentShade1 = Color3.fromRGB(36, 36, 37)
-currentShade2 = Color3.fromRGB(46, 46, 47)
-currentShade3 = Color3.fromRGB(78, 78, 79)
+currentShade1 = Color3.fromRGB(15, 15, 20)
+currentShade2 = Color3.fromRGB(20, 20, 25)
+currentShade3 = Color3.fromRGB(120, 80, 160)
 currentText1 = Color3.new(1, 1, 1)
 currentText2 = Color3.new(0, 0, 0)
-currentScroll = Color3.fromRGB(78,78,79)
+currentScroll = Color3.fromRGB(120, 80, 160)
 
 defaultGuiScale = IsOnMobile and 0.9 or 1
 defaultsettings = {
@@ -2985,7 +3207,7 @@ function createPopup(title, text)
 	background.Name = "background"
 	background.Parent = Popup
 	background.Active = true
-	background.BackgroundColor3 = Color3.fromRGB(36, 36, 37)
+	background.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 	background.BorderSizePixel = 0
 	background.Position = UDim2.new(0, 0, 0, 20)
 	background.Size = UDim2.new(0, 360, 0, 205)
@@ -3008,7 +3230,7 @@ function createPopup(title, text)
 
 	shadow.Name = "shadow"
 	shadow.Parent = Popup
-	shadow.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+	shadow.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 	shadow.BorderSizePixel = 0
 	shadow.Size = UDim2.new(0, 360, 0, 20)
 	shadow.ZIndex = 10
@@ -3084,12 +3306,12 @@ function saves()
 					warn("Save Json Error:", response)
 					warn("Overwriting Save File")
 					writefile("IY_FE.iy", defaults, true)
-					wait()
+					task.wait()
 					saves()
 				end
 			else
 				writefile("IY_FE.iy", defaults, true)
-				wait()
+				task.wait()
 				local dReadSuccess, dOut = readfile("IY_FE.iy", true)
 				if dReadSuccess and dOut ~= nil and tostring(dOut):gsub("%s", "") ~= "" then
 					saves()
@@ -3101,7 +3323,7 @@ function saves()
 			end
 		else
 			writefile("IY_FE.iy", defaults, true)
-			wait()
+			task.wait()
 			local dReadSuccess, dOut = readfile("IY_FE.iy", true)
 			if dReadSuccess and dOut ~= nil and tostring(dOut):gsub("%s", "") ~= "" then
 				saves()
@@ -3176,9 +3398,9 @@ if type(PluginsTable) == "table" then
 end
 
 function Time()
-	local HOUR = math.floor((tick() % 86400) / 3600)
-	local MINUTE = math.floor((tick() % 3600) / 60)
-	local SECOND = math.floor(tick() % 60)
+	local HOUR = math.floor((os.clock() % 86400) / 3600)
+	local MINUTE = math.floor((os.clock() % 3600) / 60)
+	local SECOND = math.floor(os.clock() % 60)
 	local AP = HOUR > 11 and 'PM' or 'AM'
 	HOUR = (HOUR % 12 == 0 and 12 or HOUR % 12)
 	HOUR = HOUR < 10 and '0' .. HOUR or HOUR
@@ -3241,12 +3463,12 @@ function notify(text,text2,length)
 				pinNotification:Disconnect()
 				notificationPinned = true
 				Title_2.BackgroundTransparency = 1
-				wait(0.5)
+				task.wait(0.5)
 				Title_2.BackgroundTransparency = 0
 			end)
 		end)
 		Notification:TweenPosition(UDim2.new(1, Notification.Position.X.Offset, 1, 0), "InOut", "Quart", 0.5, true, nil)
-		wait(0.6)
+		task.wait(0.6)
 		local closepressed = false
 		if text2 then
 			Title_2.Text = text
@@ -3255,26 +3477,54 @@ function notify(text,text2,length)
 			Title_2.Text = 'Notification'
 			Text_2.Text = text
 		end
+		Title_2.Font = Enum.Font.GothamBold
+		Title_2.TextSize = 13
+		Text_2.Font = Enum.Font.GothamMedium
+		Text_2.TextSize = 12
+		
+		-- Create progress bar for notification timeout
+		local progressBar = Notification:FindFirstChild("NotifProgress")
+		if not progressBar then
+			progressBar = Instance.new("Frame")
+			progressBar.Name = "NotifProgress"
+			progressBar.Parent = Notification
+			progressBar.BackgroundColor3 = Color3.fromRGB(100, 50, 180)
+			progressBar.BorderSizePixel = 0
+			progressBar.Position = UDim2.new(0, 0, 1, -2)
+			progressBar.Size = UDim2.new(1, 0, 0, 2)
+			progressBar.ZIndex = 11
+			local progressCorner = Instance.new("UICorner")
+			progressCorner.CornerRadius = UDim.new(0, 1)
+			progressCorner.Parent = progressBar
+		end
+		progressBar.Size = UDim2.new(1, 0, 0, 2)
+		progressBar.Visible = true
+		
 		Notification:TweenPosition(UDim2.new(1, Notification.Position.X.Offset, 1, -100), "InOut", "Quart", 0.5, true, nil)
 		CloseButton.MouseButton1Click:Connect(function()
 			Notification:TweenPosition(UDim2.new(1, Notification.Position.X.Offset, 1, 0), "InOut", "Quart", 0.5, true, nil)
 			closepressed = true
+			progressBar.Visible = false
 			pinNotification:Disconnect()
 		end)
-		if length and isNumber(length) then
-			wait(length)
-		else
-			wait(10)
-		end
+		
+		local dur = (length and isNumber(length)) and tonumber(length) or 10
+		-- Animate progress bar shrinking
+		local tweenInfo = TweenInfo.new(dur, Enum.EasingStyle.Linear)
+		TweenService:Create(progressBar, tweenInfo, {Size = UDim2.new(0, 0, 0, 2)}):Play()
+		
+		task.wait(dur)
 		if LnotifyCount == notifyCount then
 			if closepressed == false and notificationPinned == false then
 				pinNotification:Disconnect()
 				Notification:TweenPosition(UDim2.new(1, Notification.Position.X.Offset, 1, 0), "InOut", "Quart", 0.5, true, nil)
 			end
+			progressBar.Visible = false
 			notifyCount = 0
 		end
 	end)
 end
+
 
 local lastMessage = nil
 local lastLabel = nil
@@ -3375,7 +3625,7 @@ function CreateJoinLabel(plr,ID)
 	ImageLabel_3.Image = Players:GetUserThumbnailAsync(ID, Enum.ThumbnailType.AvatarThumbnail, Enum.ThumbnailSize.Size420x420)
 	scroll_3.CanvasSize = UDim2.new(0, 0, 0, listlayout.AbsoluteContentSize.Y)
 	scroll_3.CanvasPosition = Vector2.new(0,scroll_2.CanvasPosition.Y+infoFrame.AbsoluteSize.Y)
-	wait()
+	task.wait()
 	local user = game:HttpGet("https://users.roblox.com/v1/users/"..ID)
 	local json = HttpService:JSONDecode(user)
 	local date = json["created"]:sub(1,10)
@@ -3399,9 +3649,9 @@ end)
 
 Holder.MouseLeave:Connect(function()
 	if not Cmdbar:IsFocused() then
-		local reqTime = tick()
+		local reqTime = os.clock()
 		lastMinimizeReq = reqTime
-		wait(1)
+		task.wait(1)
 		if lastMinimizeReq ~= reqTime then return end
 		if not Cmdbar:IsFocused() then
 			minimizeHolder()
@@ -3568,7 +3818,7 @@ ColorsButton.MouseButton1Click:Connect(function()
 						elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
 							local releaseEvent,runEvent
 
-							local startTime = tick()
+							local startTime = os.clock()
 							local pressing = true
 							local startNum = tonumber(frame.Text)
 
@@ -3583,11 +3833,11 @@ ColorsButton.MouseButton1Click:Connect(function()
 							startNum = startNum + 1
 							func(startNum)
 							while pressing do
-								if tick()-startTime > 0.3 then
+								if os.clock()-startTime > 0.3 then
 									startNum = startNum + 1
 									func(startNum)
 								end
-								wait(0.1)
+								task.wait(0.1)
 							end
 						end
 					end)
@@ -3604,7 +3854,7 @@ ColorsButton.MouseButton1Click:Connect(function()
 						elseif input.UserInputType == Enum.UserInputType.MouseButton1 then
 							local releaseEvent,runEvent
 
-							local startTime = tick()
+							local startTime = os.clock()
 							local pressing = true
 							local startNum = tonumber(frame.Text)
 
@@ -3619,11 +3869,11 @@ ColorsButton.MouseButton1Click:Connect(function()
 							startNum = startNum - 1
 							func(startNum)
 							while pressing do
-								if tick()-startTime > 0.3 then
+								if os.clock()-startTime > 0.3 then
 									startNum = startNum - 1
 									func(startNum)
 								end
-								wait(0.1)
+								task.wait(0.1)
 							end
 						end
 					end)
@@ -3850,7 +4100,7 @@ ColorsButton.MouseButton1Click:Connect(function()
 		picker:TweenPosition(UDim2.new(0.5, -219, 0, 100), "InOut", "Quart", 0.5, true, nil)
 
 		local Npicker = ColorPicker.new()
-		Npicker.Confirm = function(self,color,ctype) updateColors(color,ctype) wait() updatesaves() end
+		Npicker.Confirm = function(self,color,ctype) updateColors(color,ctype) task.wait() updatesaves() end
 		Npicker.Cancel = function(self)
 			updateColors(cache_currentShade1,shade1)
 			updateColors(cache_currentShade2,shade2)
@@ -3858,17 +4108,17 @@ ColorsButton.MouseButton1Click:Connect(function()
 			updateColors(cache_currentText1,text1)
 			updateColors(cache_currentText2,text2)
 			updateColors(cache_currentScroll,scroll)
-			wait()
+			task.wait()
 			updatesaves()
 		end
 		Npicker.Default = function(self)
-			updateColors(Color3.fromRGB(36, 36, 37),shade1)
-			updateColors(Color3.fromRGB(46, 46, 47),shade2)
-			updateColors(Color3.fromRGB(78, 78, 79),shade3)
+			updateColors(Color3.fromRGB(15, 15, 20),shade1)
+			updateColors(Color3.fromRGB(20, 20, 25),shade2)
+			updateColors(Color3.fromRGB(120, 80, 160),shade3)
 			updateColors(Color3.new(1, 1, 1),text1)
 			updateColors(Color3.new(0, 0, 0),text2)
-			updateColors(Color3.fromRGB(78,78,79),scroll)
-			wait()
+			updateColors(Color3.fromRGB(120, 80, 160),scroll)
+			task.wait()
 			updatesaves()
 		end
 	else
@@ -4084,7 +4334,7 @@ end)
 
 Keybinds.MouseButton1Click:Connect(function()
 	KeybindsFrame:TweenPosition(UDim2.new(0, 0, 0, 0), "InOut", "Quart", 0.5, true, nil)
-	wait(0.5)
+	task.wait(0.5)
 	SettingsHolder.Visible = false
 end)
 
@@ -4093,10 +4343,15 @@ Close.MouseButton1Click:Connect(function()
 	KeybindsFrame:TweenPosition(UDim2.new(0, 0, 0, 175), "InOut", "Quart", 0.5, true, nil)
 end)
 
-Keybinds.MouseButton1Click:Connect(function()
-	KeybindsFrame:TweenPosition(UDim2.new(0, 0, 0, 0), "InOut", "Quart", 0.5, true, nil)
-	wait(0.5)
+ThemesPresetsButton.MouseButton1Click:Connect(function()
+	ThemesFrame:TweenPosition(UDim2.new(0, 0, 0, 0), "InOut", "Quart", 0.5, true, nil)
+	task.wait(0.5)
 	SettingsHolder.Visible = false
+end)
+
+ThemesClose.MouseButton1Click:Connect(function()
+	SettingsHolder.Visible = true
+	ThemesFrame:TweenPosition(UDim2.new(0, 0, 0, 175), "InOut", "Quart", 0.5, true, nil)
 end)
 
 Add.MouseButton1Click:Connect(function()
@@ -4117,7 +4372,7 @@ end)
 
 Aliases.MouseButton1Click:Connect(function()
 	AliasesFrame:TweenPosition(UDim2.new(0, 0, 0, 0), "InOut", "Quart", 0.5, true, nil)
-	wait(0.5)
+	task.wait(0.5)
 	SettingsHolder.Visible = false
 end)
 
@@ -4128,7 +4383,7 @@ end)
 
 Positions.MouseButton1Click:Connect(function()
 	PositionsFrame:TweenPosition(UDim2.new(0, 0, 0, 0), "InOut", "Quart", 0.5, true, nil)
-	wait(0.5)
+	task.wait(0.5)
 	SettingsHolder.Visible = false
 end)
 
@@ -4253,7 +4508,7 @@ function updateCamera(child, parent)
 	if parent ~= workspace then
 		CamMoved:Disconnect()
 		CameraChanged:Disconnect()
-		repeat wait() until workspace.CurrentCamera
+		repeat task.wait() until workspace.CurrentCamera
 		CameraChanged = workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateToViewport)
 		CamMoved = workspace.CurrentCamera.AncestryChanged:Connect(updateCamera)
 	end
@@ -4391,7 +4646,7 @@ task.spawn(function()
 		local function Index()
 			if chatbox.Text:lower():sub(1,1) == prefix then
 				if SettingsOpen == true then
-					wait(0.2)
+					task.wait(0.2)
 					CMDsF.Visible = true
 					Settings:TweenPosition(UDim2.new(0, 0, 0, 220), "InOut", "Quart", 0.2, true, nil)
 				end
@@ -4399,7 +4654,7 @@ task.spawn(function()
 			else
 				minimizeHolder()
 				if SettingsOpen == true then
-					wait(0.2)
+					task.wait(0.2)
 					Settings:TweenPosition(UDim2.new(0, 0, 0, 45), "InOut", "Quart", 0.2, true, nil)
 					CMDsF.Visible = false
 				end
@@ -4417,7 +4672,7 @@ task.spawn(function()
 		local chatboxFocusLostC = chatbox.FocusLost:Connect(chatboxFocusLost)
 
 		PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.ChildAdded:Connect(function(newbar)
-			wait()
+			task.wait()
 			if newbar:FindFirstChild('BoxFrame') then
 				chatbox = PlayerGui:WaitForChild("Chat").Frame.ChatBarParentFrame.Frame.BoxFrame.Frame.ChatBar
 				if chatboxFocusedC then chatboxFocusedC:Disconnect() end
@@ -4463,11 +4718,9 @@ CMDs = {}
 CMDs[#CMDs + 1] = {NAME = 'discord / support / help', DESC = 'Invite to the Infinite Yield discord server.'}
 CMDs[#CMDs + 1] = {NAME = 'guiscale [number]', DESC = 'Changes the size of the gui. [number] accepts decimals and whole numbers. Min is 0.4 and Max is 2'}
 CMDs[#CMDs + 1] = {NAME = 'console', DESC = 'Opens the Roblox console'}
-CMDs[#CMDs + 1] = {NAME = 'oldconsole', DESC = 'Loads an old-themed Roblox console'}
-CMDs[#CMDs + 1] = {NAME = 'explorer / dex', DESC = 'Opens Dex++ by Chillz'}
-CMDs[#CMDs + 1] = {NAME = 'moondex / mdex', DESC = 'Opens DEX by Moon'}
-CMDs[#CMDs + 1] = {NAME = 'remotespy / rspy', DESC = 'Opens Cobalt to intercept incoming and outgoing network traffic'}
-CMDs[#CMDs + 1] = {NAME = 'simplespy / sspy', DESC = 'Opens Simple Spy V3 to intercept remote calls from the client to the server'}
+CMDs[#CMDs + 1] = {NAME = 'explorer / dex', DESC = 'Opens DEX by Moon'}
+CMDs[#CMDs + 1] = {NAME = 'cobalt / cspy', DESC = 'Opens Cobalt to intercept incoming and outgoing network traffic'}
+CMDs[#CMDs + 1] = {NAME = 'remotespy / rspy', DESC = 'Opens Simple Spy V3 to intercept remote calls from the client to the server'}
 CMDs[#CMDs + 1] = {NAME = 'audiologger / alogger', DESC = 'Opens Edges audio logger'}
 CMDs[#CMDs + 1] = {NAME = 'serverinfo / info', DESC = 'Gives you info about the server'}
 CMDs[#CMDs + 1] = {NAME = 'jobid', DESC = 'Copies the games JobId to your clipboard'}
@@ -4748,8 +5001,6 @@ CMDs[#CMDs + 1] = {NAME = 'unwalkfling / nowalkfling', DESC = 'Disables walkflin
 CMDs[#CMDs + 1] = {NAME = 'invisfling', DESC = 'Enables invisible fling (the invis part is patched, try using the god command before using this)'}
 CMDs[#CMDs + 1] = {NAME = 'antifling', DESC = 'Disables player collisions to prevent you from being flung'}
 CMDs[#CMDs + 1] = {NAME = 'unantifling', DESC = 'Disables antifling'}
-CMDs[#CMDs + 1] = {NAME = 'loopoof', DESC = 'Loops everyones character sounds (everyone can hear)'}
-CMDs[#CMDs + 1] = {NAME = 'unloopoof', DESC = 'Stops the oof chaos'}
 CMDs[#CMDs + 1] = {NAME = 'muteboombox [player]', DESC = 'Mutes someones boombox'}
 CMDs[#CMDs + 1] = {NAME = 'unmuteboombox [player]', DESC = 'Unmutes someones boombox'}
 CMDs[#CMDs + 1] = {NAME = 'hitboxes', DESC = 'Shows all rendered bounding boxes'}
@@ -4893,7 +5144,74 @@ CMDs[#CMDs + 1] = {NAME = 'addplugin / plugin [name]', DESC = 'Add a plugin via 
 CMDs[#CMDs + 1] = {NAME = 'removeplugin / deleteplugin [name]', DESC = 'Remove a plugin via command'}
 CMDs[#CMDs + 1] = {NAME = 'reloadplugin [name]', DESC = 'Reloads a plugin'}
 CMDs[#CMDs + 1] = {NAME = 'addallplugins / loadallplugins', DESC = 'Adds all available plugins from the workspace folder'}
--- wait()
+CMDs[#CMDs + 1] = {NAME = '', DESC = ''}
+CMDs[#CMDs + 1] = {NAME = '-- biy EXCLUSIVE --', DESC = 'New commands added in biy fork'}
+CMDs[#CMDs + 1] = {NAME = 'aspeed / awalkspeed [speed]', DESC = 'Anti-cheat WalkSpeed bypass (forces speed value every 0.1s)'}
+CMDs[#CMDs + 1] = {NAME = 'unaspeed / unawalkspeed', DESC = 'Disables aspeed'}
+CMDs[#CMDs + 1] = {NAME = 'afly / bypassfly [speed]', DESC = 'Anti-cheat Platform fly bypass'}
+CMDs[#CMDs + 1] = {NAME = 'unafly / unbypassfly', DESC = 'Disables afly'}
+CMDs[#CMDs + 1] = {NAME = 'anoclip / bypassnoclip', DESC = 'Anti-cheat noclip bypass'}
+CMDs[#CMDs + 1] = {NAME = 'unanoclip', DESC = 'Disables anoclip'}
+CMDs[#CMDs + 1] = {NAME = 'ajump / bypassjump', DESC = 'Anti-cheat high-jump bypass'}
+CMDs[#CMDs + 1] = {NAME = 'abring / bypassbring [player]', DESC = 'Anti-cheat bring bypass'}
+CMDs[#CMDs + 1] = {NAME = 'avoid / bypassvoid', DESC = 'Bypasses death zones by safe depth tweening'}
+CMDs[#CMDs + 1] = {NAME = 'speedbypass / sbypass [speed]', DESC = 'CFrame-based movement to bypass speed checks'}
+CMDs[#CMDs + 1] = {NAME = 'unspeedbypass / unsbypass', DESC = 'Disables speed bypass'}
+CMDs[#CMDs + 1] = {NAME = 'phasewalk / phase', DESC = 'CFrame-based noclip that bypasses some anti-cheats'}
+CMDs[#CMDs + 1] = {NAME = 'unphasewalk / unphase', DESC = 'Disables phasewalk'}
+CMDs[#CMDs + 1] = {NAME = 'aimlock [player]', DESC = 'Locks your camera to look at a player'}
+CMDs[#CMDs + 1] = {NAME = 'unaimlock', DESC = 'Disables aimlock'}
+CMDs[#CMDs + 1] = {NAME = 'smartrejoin / srj', DESC = 'Rejoins the same server, auto-retries on fail'}
+CMDs[#CMDs + 1] = {NAME = 'playerinfo / pinfo [player]', DESC = 'Shows detailed player information panel'}
+CMDs[#CMDs + 1] = {NAME = 'favoritecmd / fav [command]', DESC = 'Adds a command to your favorites'}
+CMDs[#CMDs + 1] = {NAME = 'unfavoritecmd / unfav [command]', DESC = 'Removes a command from favorites'}
+CMDs[#CMDs + 1] = {NAME = 'smartantiteleport / smartantitp', DESC = 'Blocks forced teleports but allows your own'}
+CMDs[#CMDs + 1] = {NAME = 'unsmartantiteleport / unsmartantitp', DESC = 'Disables smart anti-teleport'}
+CMDs[#CMDs + 1] = {NAME = 'serverfps / sfps', DESC = 'Shows estimated server FPS/Heartbeat rate'}
+CMDs[#CMDs + 1] = {NAME = 'copydisplayname / cdname [player]', DESC = 'Copies a players display name to clipboard'}
+CMDs[#CMDs + 1] = {NAME = 'lowgfx / fpsboost', DESC = 'Simplifies materials and disables shadows for FPS boost'}
+CMDs[#CMDs + 1] = {NAME = 'resetgfx / normalgfx', DESC = 'Restores original graphics settings'}
+CMDs[#CMDs + 1] = {NAME = 'muteall', DESC = 'Mutes all Sound objects in the game'}
+CMDs[#CMDs + 1] = {NAME = 'unmuteall', DESC = 'Restores volume of muted Sound objects'}
+CMDs[#CMDs + 1] = {NAME = 'blockparticles / noparticles', DESC = 'Disables all ParticleEmitters, Fire, Smoke, and Sparkles'}
+CMDs[#CMDs + 1] = {NAME = 'unblockparticles', DESC = 'Enables previously disabled particle effects'}
+CMDs[#CMDs + 1] = {NAME = 'resetambient', DESC = 'Resets game ambient lighting to default'}
+CMDs[#CMDs + 1] = {NAME = 'rainbowambient / rbambient', DESC = 'Starts cycling ambient lighting through rainbow colors'}
+CMDs[#CMDs + 1] = {NAME = 'unrainbowambient', DESC = 'Stops rainbow ambient lighting'}
+CMDs[#CMDs + 1] = {NAME = 'fogcolor / fogc [r g b]', DESC = 'Sets game fog color'}
+CMDs[#CMDs + 1] = {NAME = 'fogend / foge [num]', DESC = 'Sets game fog end distance'}
+CMDs[#CMDs + 1] = {NAME = 'resetgravity / rgrav', DESC = 'Resets local game gravity to default'}
+CMDs[#CMDs + 1] = {NAME = 'resetfov / rfov', DESC = 'Resets camera field of view to default'}
+CMDs[#CMDs + 1] = {NAME = 'camtilt [num]', DESC = 'Tilts the camera angle by rotation offset'}
+CMDs[#CMDs + 1] = {NAME = 'untilt', DESC = 'Resets camera tilt rotation offset'}
+CMDs[#CMDs + 1] = {NAME = 'lockcam / lockcamera', DESC = 'Locks camera position in place'}
+CMDs[#CMDs + 1] = {NAME = 'unlockcam / unlockcamera', DESC = 'Unlocks camera position'}
+CMDs[#CMDs + 1] = {NAME = 'cleardecals / nodecals', DESC = 'Deletes all decals and textures in the workspace'}
+CMDs[#CMDs + 1] = {NAME = 'copyserverid / csid', DESC = 'Copies the current server JobId to clipboard'}
+CMDs[#CMDs + 1] = {NAME = 'partcount / showparts', DESC = 'Shows the total number of parts currently in the Workspace'}
+CMDs[#CMDs + 1] = {NAME = 'getfps', DESC = 'Displays your current client FPS'}
+CMDs[#CMDs + 1] = {NAME = 'freezecam / fcam', DESC = 'Freezes the camera position in place'}
+CMDs[#CMDs + 1] = {NAME = 'unfreezecam / unfcam', DESC = 'Unfreezes the camera'}
+CMDs[#CMDs + 1] = {NAME = 'hidechat', DESC = 'Hides the Roblox chat GUI'}
+CMDs[#CMDs + 1] = {NAME = 'showchat', DESC = 'Shows the Roblox chat GUI'}
+CMDs[#CMDs + 1] = {NAME = 'killchar / breakjoints', DESC = 'Kills your character locally by breaking joints'}
+CMDs[#CMDs + 1] = {NAME = 'nosounds / removesounds', DESC = 'Deletes all Sound objects in the Workspace'}
+CMDs[#CMDs + 1] = {NAME = 'clearparticles / removeparticles', DESC = 'Deletes all particle effects in the Workspace'}
+CMDs[#CMDs + 1] = {NAME = 'aimbot / toggleaimbot / aim', DESC = 'Toggles aimbot (Hold RMB to Lock)'}
+CMDs[#CMDs + 1] = {NAME = 'aimbotpart / aimpart [part]', DESC = 'Sets target part for aimbot (Head/Torso/HRP)'}
+CMDs[#CMDs + 1] = {NAME = 'aimbotfov / aimfov [number]', DESC = 'Sets FOV radius for aimbot'}
+CMDs[#CMDs + 1] = {NAME = 'aimbotteamcheck / aimteam', DESC = 'Toggles aimbot team check'}
+CMDs[#CMDs + 1] = {NAME = 'aimbotsmoothness / aimsmooth [number]', DESC = 'Sets aimbot smoothness tracking speed'}
+CMDs[#CMDs + 1] = {NAME = 'aimbotwallcheck / aimwall', DESC = 'Toggles aimbot wall check'}
+CMDs[#CMDs + 1] = {NAME = 'aimbotdrawfov / aimcircle', DESC = 'Toggles displaying the 2D aimbot FOV circle'}
+CMDs[#CMDs + 1] = {NAME = 'silentaim / saim', DESC = 'Toggles silent aim'}
+CMDs[#CMDs + 1] = {NAME = 'silentaimpart / saimpart [part]', DESC = 'Sets target part for silent aim (Head/Torso/HRP)'}
+CMDs[#CMDs + 1] = {NAME = 'silentaimfov / saimfov [number]', DESC = 'Sets FOV radius for silent aim'}
+CMDs[#CMDs + 1] = {NAME = 'silentaimteamcheck / saimteam', DESC = 'Toggles silent aim team check'}
+CMDs[#CMDs + 1] = {NAME = 'silentaimdrawfov / saimcircle', DESC = 'Toggles displaying the 2D silent aim FOV circle'}
+CMDs[#CMDs + 1] = {NAME = 'videodisplay / vd [asset]', DESC = 'Displays a movable and resizable video on the screen'}
+CMDs[#CMDs + 1] = {NAME = 'fog [color]', DESC = 'Sets the fog color (name, hex, or RGB)'}
+-- task.wait()
 
 for i = 1, #CMDs do
 	local newcmd = Example:Clone()
@@ -4998,7 +5316,7 @@ function refresh(plr)
 		local char = plr.CharacterAdded:Wait()
 		local humanoid = char:FindFirstChildOfClass("Humanoid")
 		while not humanoid do
-			wait()
+			task.wait()
 			humanoid = char:FindFirstChildOfClass("Humanoid")
 		end
 		humanoid.RootPart.CFrame, workspace.CurrentCamera.CFrame = pos, task.wait() and pos1
@@ -5017,7 +5335,7 @@ function onDied()
 				end
 			end)
 		else
-			wait(2)
+			task.wait(2)
 			onDied()
 		end
 	end)
@@ -5033,11 +5351,11 @@ Players.LocalPlayer.CharacterAdded:Connect(function()
 		execCmd('clip')
 	end
 
-	repeat wait() until getRoot(Players.LocalPlayer.Character)
+	repeat task.wait() until getRoot(Players.LocalPlayer.Character)
 
 	pcall(function()
 		if spawnpoint and not refreshCmd and spawnpos ~= nil then
-			wait(spDelay)
+			task.wait(spDelay)
 			getRoot(Players.LocalPlayer.Character).CFrame = spawnpos
 		end
 	end)
@@ -5143,14 +5461,14 @@ function execCmd(cmdStr,speaker,store)
 
 					lastCmds[cmdName] = v
 				end
-				local cmdStartTime = tick()
+				local cmdStartTime = os.clock()
 				if infTimes then
 					while lastBreakTime < cmdStartTime do
 						local success,err = pcall(cmd.FUNC,args, speaker)
 						if not success and _G.IY_DEBUG then
 							warn("Command Error:", cmdName, err)
 						end
-						wait(cmdDelay)
+						task.wait(cmdDelay)
 					end
 				else
 					for rep = 1,num do
@@ -5161,7 +5479,7 @@ function execCmd(cmdStr,speaker,store)
 						if not success and _G.IY_DEBUG then
 							warn("Command Error:", cmdName, err)
 						end
-						if cmdDelay ~= 0 then wait(cmdDelay) end
+						if cmdDelay ~= 0 then task.wait(cmdDelay) end
 					end
 				end
 			end
@@ -5364,15 +5682,6 @@ SpecialPlayerCases = {
 		local returns = {}
 		for _,plr in pairs(Players:GetPlayers()) do
 			if not plr:IsFriendsWith(speaker.UserId) and plr ~= speaker then
-				table.insert(returns,plr)
-			end
-		end
-		return returns
-	end,
-	["guests"] = function(speaker,args)
-		local returns = {}
-		for _,plr in pairs(Players:GetPlayers()) do
-			if plr.Guest then
 				table.insert(returns,plr)
 			end
 		end
@@ -5639,7 +5948,7 @@ UserInputService.InputBegan:Connect(function(input,gameProcessed)
 end)
 
 Players.LocalPlayer.Chatted:Connect(function()
-	wait()
+	task.wait()
 	if lastEnteredString then
 		local message = lastEnteredString
 		lastEnteredString = nil
@@ -5662,12 +5971,12 @@ Cmdbar.FocusLost:Connect(function(enterpressed)
 		execCmd(cmdbarText,Players.LocalPlayer,true)
 	end
 	if tabComplete then tabComplete:Disconnect() end
-	wait()
+	task.wait()
 	if not Cmdbar:IsFocused() then
 		Cmdbar.Text = ""
 		IndexContents('',true,false,true)
 		if SettingsOpen == true then
-			wait(0.2)
+			task.wait(0.2)
 			Settings:TweenPosition(UDim2.new(0, 0, 0, 45), "InOut", "Quart", 0.2, true, nil)
 			CMDsF.Visible = false
 		end
@@ -5679,7 +5988,7 @@ Cmdbar.Focused:Connect(function()
 	historyCount = 0
 	canvasPos = CMDsF.CanvasPosition
 	if SettingsOpen == true then
-		wait(0.2)
+		task.wait(0.2)
 		CMDsF.Visible = true
 		Settings:TweenPosition(UDim2.new(0, 0, 0, 220), "InOut", "Quart", 0.2, true, nil)
 	end
@@ -5709,12 +6018,12 @@ function ESP(plr, logic)
 				v:Destroy()
 			end
 		end
-		wait()
+		task.wait()
 		if plr.Character and plr.Name ~= Players.LocalPlayer.Name and not COREGUI:FindFirstChild(plr.Name..'_ESP') then
 			local ESPholder = Instance.new("Folder")
 			ESPholder.Name = plr.Name..'_ESP'
 			ESPholder.Parent = COREGUI
-			repeat wait(1) until plr.Character and getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+			repeat task.wait(1) until plr.Character and getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 			for b,n in pairs (plr.Character:GetChildren()) do
 				if (n:IsA("BasePart")) then
 					local a = Instance.new("BoxHandleAdornment")
@@ -5760,7 +6069,7 @@ function ESP(plr, logic)
 						espLoopFunc:Disconnect()
 						teamChange:Disconnect()
 						ESPholder:Destroy()
-						repeat wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+						repeat task.wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 						ESP(plr, logic)
 						addedFunc:Disconnect()
 					else
@@ -5773,7 +6082,7 @@ function ESP(plr, logic)
 						espLoopFunc:Disconnect()
 						addedFunc:Disconnect()
 						ESPholder:Destroy()
-						repeat wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+						repeat task.wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 						ESP(plr, logic)
 						teamChange:Disconnect()
 					else
@@ -5805,12 +6114,12 @@ function CHMS(plr)
 				v:Destroy()
 			end
 		end
-		wait()
+		task.wait()
 		if plr.Character and plr.Name ~= Players.LocalPlayer.Name and not COREGUI:FindFirstChild(plr.Name..'_CHMS') then
 			local ESPholder = Instance.new("Folder")
 			ESPholder.Name = plr.Name..'_CHMS'
 			ESPholder.Parent = COREGUI
-			repeat wait(1) until plr.Character and getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+			repeat task.wait(1) until plr.Character and getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 			for b,n in pairs (plr.Character:GetChildren()) do
 				if (n:IsA("BasePart")) then
 					local a = Instance.new("BoxHandleAdornment")
@@ -5831,7 +6140,7 @@ function CHMS(plr)
 				if CHMSenabled then
 					ESPholder:Destroy()
 					teamChange:Disconnect()
-					repeat wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+					repeat task.wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 					CHMS(plr)
 					addedFunc:Disconnect()
 				else
@@ -5843,7 +6152,7 @@ function CHMS(plr)
 				if CHMSenabled then
 					ESPholder:Destroy()
 					addedFunc:Disconnect()
-					repeat wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+					repeat task.wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 					CHMS(plr)
 					teamChange:Disconnect()
 				else
@@ -5866,12 +6175,12 @@ function Locate(plr)
 				v:Destroy()
 			end
 		end
-		wait()
+		task.wait()
 		if plr.Character and plr.Name ~= Players.LocalPlayer.Name and not COREGUI:FindFirstChild(plr.Name..'_LC') then
 			local ESPholder = Instance.new("Folder")
 			ESPholder.Name = plr.Name..'_LC'
 			ESPholder.Parent = COREGUI
-			repeat wait(1) until plr.Character and getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+			repeat task.wait(1) until plr.Character and getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 			for b,n in pairs (plr.Character:GetChildren()) do
 				if (n:IsA("BasePart")) then
 					local a = Instance.new("BoxHandleAdornment")
@@ -5913,7 +6222,7 @@ function Locate(plr)
 						lcLoopFunc:Disconnect()
 						teamChange:Disconnect()
 						ESPholder:Destroy()
-						repeat wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+						repeat task.wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 						Locate(plr)
 						addedFunc:Disconnect()
 					else
@@ -5926,7 +6235,7 @@ function Locate(plr)
 						lcLoopFunc:Disconnect()
 						addedFunc:Disconnect()
 						ESPholder:Destroy()
-						repeat wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
+						repeat task.wait(1) until getRoot(plr.Character) and plr.Character:FindFirstChildOfClass("Humanoid")
 						Locate(plr)
 						teamChange:Disconnect()
 					else
@@ -6245,7 +6554,7 @@ local function clicktpFunc()
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if humanoid and humanoid.SeatPart then
 			humanoid.Sit = false
-			wait(0.1)
+			task.wait(0.1)
 		end
 
 		local hipHeight = humanoid and humanoid.HipHeight > 0 and (humanoid.HipHeight + 1)
@@ -6470,7 +6779,7 @@ end)
 Plugins.MouseButton1Click:Connect(function()
 	if writefileExploit() then
 		PluginsFrame:TweenPosition(UDim2.new(0, 0, 0, 0), "InOut", "Quart", 0.5, true, nil)
-		wait(0.5)
+		task.wait(0.5)
 		SettingsHolder.Visible = false
 	else
 		notify('Incompatible Exploit','Your exploit is unable to use plugins (missing read/writefile)')
@@ -6865,10 +7174,10 @@ addcmd('serverinfo',{'info','sinfo'},function(args, speaker)
 
 		local SINFOGUI = background
 		FRAME:TweenPosition(UDim2.new(0.5, -130, 0, 100), "InOut", "Quart", 0.5, true, nil) 
-		wait(0.5)
+		task.wait(0.5)
 		Exit.MouseButton1Click:Connect(function()
 			FRAME:TweenPosition(UDim2.new(0.5, -130, 0, -500), "InOut", "Quart", 0.5, true, nil) 
-			wait(0.6)
+			task.wait(0.6)
 			FRAME:Destroy()
 			canOpenServerinfo = true
 		end)
@@ -6907,7 +7216,7 @@ addcmd('serverinfo',{'info','sinfo'},function(args, speaker)
 			else
 				SINFOGUI.Time.Text = hours .. " Hour(s), " .. minutes .. " Minute(s), " .. seconds .. " Second(s)"
 			end
-			wait(1)
+			task.wait(1)
 		until SINFOGUI.Parent == nil
 	end)
 end)
@@ -6921,7 +7230,7 @@ addcmd('notifyjobid',{},function(args, speaker)
 end)
 
 addcmd('breakloops',{'break'},function(args, speaker)
-	lastBreakTime = tick()
+	lastBreakTime = os.clock()
 end)
 
 addcmd('gametp',{'gameteleport'},function(args, speaker)
@@ -6931,7 +7240,7 @@ end)
 addcmd("rejoin", {"rj"}, function(args, speaker)
 	if #Players:GetPlayers() <= 1 then
 		Players.LocalPlayer:Kick("\nRejoining...")
-		wait()
+		task.wait()
 		TeleportService:Teleport(PlaceId, Players.LocalPlayer)
 	else
 		TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
@@ -6970,43 +7279,51 @@ addcmd("exit", {}, function(args, speaker)
 	game:Shutdown()
 end)
 
-local NoclipParts = {}
 local Noclipping = nil
-addcmd("noclip", {}, function(args, speaker)
-    pcall(function() Noclipping:Disconnect() end)
-    Clip = false
-    task.wait(0.1)
-    NoclipParts = {}
-    Noclipping = RunService.Stepped:Connect(function()
-        if Clip == false and speaker.Character ~= nil then
-            for _, child in pairs(speaker.Character:GetDescendants()) do
-                if child:IsA("BasePart") and child.CanCollide == true and child.Name ~= floatName then
-                    child.CanCollide = false
-                    NoclipParts[child] = true
-                end
-            end
-        end
-    end)
-    if args[1] and args[1] == "nonotify" then return end
-    notify("Noclip", "Noclip Enabled")
+addcmd('noclip',{},function(args, speaker)
+	Clip = false
+	task.wait(0.1)
+	local function NoclipLoop()
+		if Clip == false and speaker.Character ~= nil then
+			for _, child in pairs(speaker.Character:GetDescendants()) do
+				if child:IsA("BasePart") and child.CanCollide == true and child.Name ~= floatName then
+					child.CanCollide = false
+				end
+			end
+		end
+	end
+	Noclipping = RunService.Stepped:Connect(NoclipLoop)
+	if args[1] and args[1] == 'nonotify' then return end
+	notify('Noclip','Noclip Enabled')
 end)
 
-addcmd("unnoclip", {"clip"}, function(args, speaker)
-    pcall(function() Noclipping:Disconnect() end)
-    Clip = true
-    task.wait(0.1)
-    for child, _ in pairs(NoclipParts) do
-        if typeof(child) == "Instance" and child:IsA("BasePart") and child.Parent then
-            child.CanCollide = true
-        end
-    end
-    NoclipParts = {}
-    if args[1] and args[1] == "nonotify" then return end
-    notify("Noclip", "Noclip Disabled")
+addcmd('clip',{'unnoclip'},function(args, speaker)
+	if Noclipping then
+		Noclipping:Disconnect()
+	end
+	Clip = true
+	if _G.BypassNoclipConn then
+		_G.BypassNoclipConn:Disconnect()
+		_G.BypassNoclipConn = nil
+		local character = speaker and speaker.Character
+		if character then
+			for _, part in ipairs(character:GetDescendants()) do
+				if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part:FindFirstAncestorOfClass("Accessory") and not part:FindFirstAncestorOfClass("Tool") then
+					part.CanCollide = true
+				end
+			end
+		end
+	end
+	if args[1] and args[1] == 'nonotify' then return end
+	notify('Noclip','Noclip Disabled')
 end)
 
-addcmd("togglenoclip", {}, function(args, speaker)
-    execCmd(Clip and "noclip" or "unnoclip")
+addcmd('togglenoclip',{},function(args, speaker)
+	if Clip then
+		execCmd('noclip')
+	else
+		execCmd('clip')
+	end
 end)
 
 FLYING = false
@@ -7211,7 +7528,7 @@ end
 addcmd('fly',{},function(args, speaker)
 	if not IsOnMobile then
 		NOFLY()
-		wait()
+		task.wait()
 		sFLY()
 	else
 		mobilefly(speaker)
@@ -7235,7 +7552,7 @@ end)
 addcmd('vfly',{'vehiclefly'},function(args, speaker)
 	if not IsOnMobile then
 		NOFLY()
-		wait()
+		task.wait()
 		sFLY(true)
 	else
 		mobilefly(speaker, true)
@@ -7497,15 +7814,17 @@ addcmd('waypoints',{'positions'},function(args, speaker)
 	AliasesFrame:TweenPosition(UDim2.new(0, 0, 0, 175), "InOut", "Quart", 0.5, true, nil)
 	PluginsFrame:TweenPosition(UDim2.new(0, 0, 0, 175), "InOut", "Quart", 0.5, true, nil)
 	PositionsFrame:TweenPosition(UDim2.new(0, 0, 0, 0), "InOut", "Quart", 0.5, true, nil)
-	wait(0.5)
+	task.wait(0.5)
 	SettingsHolder.Visible = false
 	maximizeHolder()
 end)
 
 waypointParts = {}
+local waypointConnection
 addcmd('showwaypoints',{'showwp','showwps'},function(args, speaker)
 	execCmd('hidewaypoints')
-	wait()
+	task.wait()
+	local activeLabels = {}
 	for i,_ in pairs(WayPoints) do
 		local x = WayPoints[i].COORD[1]
 		local y = WayPoints[i].COORD[2]
@@ -7516,26 +7835,81 @@ addcmd('showwaypoints',{'showwp','showwps'},function(args, speaker)
 		part.Parent = workspace
 		part.Anchored = true
 		part.CanCollide = false
+		part.Transparency = 1
 		table.insert(waypointParts,part)
 		local view = Instance.new("BoxHandleAdornment")
 		view.Adornee = part
 		view.AlwaysOnTop = true
 		view.ZIndex = 10
 		view.Size = part.Size
+		view.Color = BrickColor.new("Deep blue")
+		view.Transparency = 0.5
 		view.Parent = part
+		local bGui = Instance.new("BillboardGui")
+		bGui.Size = UDim2.new(0, 150, 0, 50)
+		bGui.AlwaysOnTop = true
+		bGui.Adornee = part
+		bGui.Parent = part
+		local txt = Instance.new("TextLabel")
+		txt.Size = UDim2.new(1, 0, 1, 0)
+		txt.BackgroundTransparency = 1
+		txt.TextColor3 = Color3.fromRGB(150, 100, 250)
+		txt.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+		txt.TextStrokeTransparency = 0
+		txt.TextSize = 14
+		txt.Font = Enum.Font.GothamMedium
+		txt.Parent = bGui
+		table.insert(activeLabels, {textLabel = txt, name = WayPoints[i].NAME, target = part})
 	end
 	for i,v in pairs(pWayPoints) do
-		local view = Instance.new("BoxHandleAdornment")
-		view.Adornee = pWayPoints[i].COORD[1]
-		view.AlwaysOnTop = true
-		view.ZIndex = 10
-		view.Size = pWayPoints[i].COORD[1].Size
-		view.Parent = pWayPoints[i].COORD[1]
-		table.insert(waypointParts,view)
+		local targetPart = pWayPoints[i].COORD[1]
+		if targetPart and targetPart:IsA("BasePart") then
+			local view = Instance.new("BoxHandleAdornment")
+			view.Adornee = targetPart
+			view.AlwaysOnTop = true
+			view.ZIndex = 10
+			view.Size = targetPart.Size
+			view.Color = BrickColor.new("Deep blue")
+			view.Transparency = 0.5
+			view.Parent = targetPart
+			table.insert(waypointParts,view)
+			local bGui = Instance.new("BillboardGui")
+			bGui.Size = UDim2.new(0, 150, 0, 50)
+			bGui.AlwaysOnTop = true
+			bGui.Adornee = targetPart
+			bGui.Parent = targetPart
+			table.insert(waypointParts,bGui)
+			local txt = Instance.new("TextLabel")
+			txt.Size = UDim2.new(1, 0, 1, 0)
+			txt.BackgroundTransparency = 1
+			txt.TextColor3 = Color3.fromRGB(150, 100, 250)
+			txt.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+			txt.TextStrokeTransparency = 0
+			txt.TextSize = 14
+			txt.Font = Enum.Font.GothamMedium
+			txt.Parent = bGui
+			table.insert(activeLabels, {textLabel = txt, name = pWayPoints[i].NAME, target = targetPart})
+		end
 	end
+	waypointConnection = RunService.RenderStepped:Connect(function()
+		local char = Players.LocalPlayer.Character
+		local root = char and getRoot(char)
+		for _, item in ipairs(activeLabels) do
+			if item.target and item.target.Parent then
+				local dist = root and math.floor((root.Position - item.target.Position).Magnitude) or 0
+				item.textLabel.Text = item.name .. " (" .. dist .. " studs)"
+			else
+				item.textLabel.Text = item.name
+			end
+		end
+	end)
 end)
 
 addcmd('hidewaypoints',{'hidewp','hidewps'},function(args, speaker)
+	if waypointConnection then
+		waypointConnection:Disconnect()
+		waypointConnection = nil
+	end
 	for i,v in pairs(waypointParts) do
 		v:Destroy()
 	end
@@ -7598,7 +7972,7 @@ addcmd('walktowaypoint',{'wtwp'},function(args, speaker)
 			if tostring(WayPoints[i].NAME):lower() == tostring(WPName):lower() then
 				if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 					speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-					wait(.1)
+					task.wait(.1)
 				end
 				speaker.Character:FindFirstChildOfClass('Humanoid').WalkToPoint = Vector3.new(x,y,z)
 			end
@@ -7607,7 +7981,7 @@ addcmd('walktowaypoint',{'wtwp'},function(args, speaker)
 			if tostring(pWayPoints[i].NAME):lower() == tostring(WPName):lower() then
 				if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 					speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-					wait(.1)
+					task.wait(.1)
 				end
 				speaker.Character:FindFirstChildOfClass('Humanoid').WalkToPoint = Vector3.new(pWayPoints[i].COORD[1].Position)
 			end
@@ -8185,7 +8559,7 @@ addcmd('view',{'spectate'},function(args, speaker)
 		workspace.CurrentCamera.CameraSubject = viewing.Character
 		notify('Spectate','Viewing ' .. Players[v].Name)
 		local function viewDiedFunc()
-			repeat wait() until Players[v].Character ~= nil and getRoot(Players[v].Character)
+			repeat task.wait() until Players[v].Character ~= nil and getRoot(Players[v].Character)
 			workspace.CurrentCamera.CameraSubject = viewing.Character
 		end
 		viewDied = Players[v].CharacterAdded:Connect(viewDiedFunc)
@@ -8201,7 +8575,7 @@ addcmd('viewpart',{'viewp'},function(args, speaker)
 	if args[1] then
 		for i,v in pairs(workspace:GetDescendants()) do
 			if v.Name:lower() == getstring(1, args):lower() and v:IsA("BasePart") then
-				wait(0.1)
+				task.wait(0.1)
 				workspace.CurrentCamera.CameraSubject = v
 			end
 		end
@@ -8569,13 +8943,13 @@ addcmd('lookat',{},function(args, speaker)
 	end
 	speaker.CameraMaxZoomDistance = 0.5
 	speaker.CameraMinZoomDistance = 0.5
-	wait()
+	task.wait()
 	local players = getPlayer(args[1], speaker)
 	for i,v in pairs(players) do
 		local target = Players[v].Character
 		if target and target:FindFirstChild('Head') then
 			workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.p, target.Head.CFrame.p)
-			wait(0.1)
+			task.wait(0.1)
 		end
 	end
 	speaker.CameraMaxZoomDistance = preMaxZoom
@@ -8586,8 +8960,8 @@ addcmd('fixcam',{'restorecam'},function(args, speaker)
 	StopFreecam()
 	execCmd('unview')
 	workspace.CurrentCamera:remove()
-	wait(.1)
-	repeat wait() until speaker.Character ~= nil
+	task.wait(.1)
+	repeat task.wait() until speaker.Character ~= nil
 	workspace.CurrentCamera.CameraSubject = speaker.Character:FindFirstChildWhichIsA('Humanoid')
 	workspace.CurrentCamera.CameraType = "Custom"
 	speaker.CameraMinZoomDistance = 0.5
@@ -8649,7 +9023,7 @@ addcmd('camdistance',{},function(args, speaker)
 	end
 	speaker.CameraMaxZoomDistance = args[1]
 	speaker.CameraMinZoomDistance = args[1]
-	wait()
+	task.wait()
 	speaker.CameraMaxZoomDistance = camMax
 	speaker.CameraMinZoomDistance = camMin
 end)
@@ -8976,6 +9350,215 @@ addcmd('un2022materials',{'unuse2022materials'},function(args, speaker)
 	end
 end)
 
+local aspeedEnabled = false
+local aspeedValue = 16
+addcmd("aspeed", {"awalkspeed"}, function(args, speaker)
+    local speed = tonumber(args[1]) or 50
+    aspeedValue = speed
+    if aspeedEnabled then return end
+    aspeedEnabled = true
+    notify("Anti-Cheat Bypass", "WalkSpeed bypass enabled: " .. speed)
+    task.spawn(function()
+        while aspeedEnabled do
+            local char = speaker.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = aspeedValue
+            end
+            task.wait(0.1)
+        end
+    end)
+end)
+
+addcmd("unaspeed", {"unawalkspeed"}, function(args, speaker)
+    aspeedEnabled = false
+    local char = speaker.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = 16
+    end
+    notify("Anti-Cheat Bypass", "WalkSpeed bypass disabled.")
+end)
+
+local aflyEnabled = false
+local aflyConnection
+local aflyGyro
+local aflyPosition
+addcmd("afly", {"bypassfly"}, function(args, speaker)
+    local character = speaker and speaker.Character
+    local root = character and getRoot(character)
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    if not root or not humanoid then return end
+    
+    execCmd("unfly")
+    task.wait(0.1)
+    
+    if aflyEnabled then return end
+    aflyEnabled = true
+    notify("Anti-Cheat Bypass", "Platform/CFrame fly bypass enabled.")
+    
+    humanoid.PlatformStand = true
+    
+    aflyGyro = Instance.new("BodyGyro")
+    aflyGyro.Name = "BypassFlyGyro"
+    aflyGyro.P = 9e4
+    aflyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+    aflyGyro.cframe = root.CFrame
+    aflyGyro.Parent = root
+    
+    aflyPosition = Instance.new("BodyPosition")
+    aflyPosition.Name = "BypassFlyPos"
+    aflyPosition.P = 9e4
+    aflyPosition.maxForce = Vector3.new(9e9, 9e9, 9e9)
+    aflyPosition.position = root.Position
+    aflyPosition.Parent = root
+    
+    local speed = tonumber(args[1]) or 50
+    
+    aflyConnection = RunService.Heartbeat:Connect(function()
+        local cam = workspace.CurrentCamera
+        local moveDir = Vector3.new(0, 0, 0)
+        
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+            moveDir = moveDir + cam.CFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+            moveDir = moveDir - cam.CFrame.LookVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+            moveDir = moveDir - cam.CFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+            moveDir = moveDir + cam.CFrame.RightVector
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            moveDir = moveDir + Vector3.new(0, 1, 0)
+        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+            moveDir = moveDir - Vector3.new(0, 1, 0)
+        end
+        
+        if moveDir.Magnitude > 0 then
+            aflyPosition.position = aflyPosition.position + (moveDir.Unit * speed * 0.03)
+        end
+        aflyGyro.cframe = cam.CFrame
+        root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+    end)
+end)
+
+addcmd("unafly", {"unbypassfly"}, function(args, speaker)
+    aflyEnabled = false
+    if aflyConnection then
+        aflyConnection:Disconnect()
+        aflyConnection = nil
+    end
+    if aflyGyro then
+        aflyGyro:Destroy()
+        aflyGyro = nil
+    end
+    if aflyPosition then
+        aflyPosition:Destroy()
+        aflyPosition = nil
+    end
+    local character = speaker and speaker.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.PlatformStand = false
+    end
+    notify("Anti-Cheat Bypass", "Platform/CFrame fly bypass disabled.")
+end)
+
+addcmd("anoclip", {"bypassnoclip"}, function(args, speaker)
+    local character = speaker and speaker.Character
+    if not character then return end
+    
+    if _G.BypassNoclipConn then
+        _G.BypassNoclipConn:Disconnect()
+        _G.BypassNoclipConn = nil
+    end
+    
+    execCmd("unnoclip")
+    task.wait(0.1)
+    
+    local connection
+    connection = RunService.Stepped:Connect(function()
+        if character and character.Parent then
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        else
+            connection:Disconnect()
+            if _G.BypassNoclipConn == connection then
+                _G.BypassNoclipConn = nil
+            end
+        end
+    end)
+    _G.BypassNoclipConn = connection
+end)
+addcmd("unanoclip", {"unbypassnoclip"}, function(args, speaker)
+    if _G.BypassNoclipConn then
+        _G.BypassNoclipConn:Disconnect()
+        _G.BypassNoclipConn = nil
+        
+        local character = speaker and speaker.Character
+        if character then
+            for _, part in ipairs(character:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and not part:FindFirstAncestorOfClass("Accessory") and not part:FindFirstAncestorOfClass("Tool") then
+                    part.CanCollide = true
+                end
+            end
+        end
+        
+        notify("Anti-Cheat Bypass", "Noclip bypass disabled.")
+    else
+        notify("Anti-Cheat Bypass", "Noclip bypass is not enabled.")
+    end
+end)
+addcmd("ajump", {"bypassjump"}, function(args, speaker)
+    local character = speaker and speaker.Character
+    local root = character and getRoot(character)
+    if root then
+        local force = Instance.new("BodyVelocity")
+        force.MaxForce = Vector3.new(0, 9e9, 0)
+        force.Velocity = Vector3.new(0, 120, 0)
+        force.Parent = root
+        task.wait(0.15)
+        force:Destroy()
+    end
+end)
+
+addcmd("abring", {"bypassbring"}, function(args, speaker)
+    local character = speaker and speaker.Character
+    local root = character and getRoot(character)
+    local players = getPlayer(args[1], speaker)
+    
+    for _, v in pairs(players) do
+        local targetChar = Players[v].Character
+        local targetRoot = targetChar and getRoot(targetChar)
+        if root and targetRoot then
+            local targetCFrame = root.CFrame + Vector3.new(3, 1, 0)
+            local distance = (targetRoot.Position - root.Position).Magnitude
+            local duration = math.clamp(distance / 45, 0.5, 5)
+            
+            local tween = TweenService:Create(targetRoot, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {CFrame = targetCFrame})
+            tween:Play()
+        end
+    end
+end)
+
+addcmd("avoid", {"bypassvoid"}, function(args, speaker)
+    local character = speaker and speaker.Character
+    local root = character and getRoot(character)
+    if root then
+        local targetCFrame = root.CFrame - Vector3.new(0, 2000, 0)
+        local tween = TweenService:Create(root, TweenInfo.new(2.5, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+        tween:Play()
+        tween.Completed:Wait()
+    end
+end)
+
 addcmd("goto", {"to"}, function(args, speaker)
     local character = speaker and speaker.Character
     local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
@@ -9037,10 +9620,10 @@ addcmd('pulsetp',{'ptp'},function(args, speaker)
 			local seconds = args[2] or 1
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
 			getRoot(speaker.Character).CFrame = getRoot(Players[v].Character).CFrame + Vector3.new(3,1,0)
-			wait(seconds)
+			task.wait(seconds)
 			getRoot(speaker.Character).CFrame = startPos
 		end
 	end
@@ -9057,7 +9640,7 @@ addcmd('vehiclenoclip',{'vnoclip'},function(args, speaker)
 			vehicleModel = vehicleModel.Parent
 		end
 	until vehicleModel.ClassName == "Model"
-	wait(0.1)
+	task.wait(0.1)
 	execCmd('noclip')
 	for i,v in pairs(vehicleModel:GetDescendants()) do
 		if v:IsA("BasePart") and v.CanCollide then
@@ -9086,7 +9669,7 @@ addcmd('clientbring',{'cbring'},function(args, speaker)
 			if Players[v].Character:FindFirstChildOfClass('Humanoid') then
 				Players[v].Character:FindFirstChildOfClass('Humanoid').Sit = false
 			end
-			wait()
+			task.wait()
 			getRoot(Players[v].Character).CFrame = getRoot(speaker.Character).CFrame + Vector3.new(3,1,0)
 		end
 	end
@@ -9116,7 +9699,7 @@ addcmd('loopbring',{},function(args, speaker)
 							if pchar~= nil and Players[v].Character ~= nil and getRoot(pchar) and speaker.Character ~= nil and getRoot(speaker.Character) then
 								getRoot(pchar).CFrame = getRoot(speaker.Character).CFrame + Vector3.new(distance,1,0)
 							end
-							wait(lDelay)
+							task.wait(lDelay)
 						else 
 							for a,b in pairs(bringT) do if b == plrName then table.remove(bringT, a) end end
 						end
@@ -9144,10 +9727,10 @@ addcmd('walkto',{'follow'},function(args, speaker)
 		if Players[v].Character ~= nil then
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
 			walkto = true
-			repeat wait()
+			repeat task.wait()
 				speaker.Character:FindFirstChildOfClass('Humanoid'):MoveTo(getRoot(Players[v].Character).Position)
 			until Players[v].Character == nil or not getRoot(Players[v].Character) or walkto == false
 		end
@@ -9156,7 +9739,7 @@ end)
 
 addcmd('pathfindwalkto',{'pathfindfollow'},function(args, speaker)
 	walkto = false
-	wait()
+	task.wait()
 	local players = getPlayer(args[1], speaker)
 	local hum = Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 	local path = PathService:CreatePath()
@@ -9164,10 +9747,10 @@ addcmd('pathfindwalkto',{'pathfindfollow'},function(args, speaker)
 		if Players[v].Character ~= nil then
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
 			walkto = true
-			repeat wait()
+			repeat task.wait()
 				local success, response = pcall(function()
 					path:ComputeAsync(getRoot(speaker.Character).Position, getRoot(Players[v].Character).Position)
 					local waypoints = path:GetWaypoints()
@@ -9177,7 +9760,7 @@ addcmd('pathfindwalkto',{'pathfindfollow'},function(args, speaker)
 						hum:MoveTo(waypointPosition)
 						repeat 
 							distance = (waypointPosition - hum.Parent.PrimaryPart.Position).magnitude
-							wait()
+							task.wait()
 						until
 						distance <= 5
 					end	 
@@ -9192,7 +9775,7 @@ end)
 
 addcmd('pathfindwalktowaypoint',{'pathfindwalktowp'},function(args, speaker)
 	waypointwalkto = false
-	wait()
+	task.wait()
 	local WPName = tostring(getstring(1, args))
 	local hum = Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 	local path = PathService:CreatePath()
@@ -9201,11 +9784,11 @@ addcmd('pathfindwalktowaypoint',{'pathfindwalktowp'},function(args, speaker)
 			if tostring(WayPoints[i].NAME):lower() == tostring(WPName):lower() then
 				if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 					speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-					wait(.1)
+					task.wait(.1)
 				end
 				local TrueCoords = Vector3.new(WayPoints[i].COORD[1], WayPoints[i].COORD[2], WayPoints[i].COORD[3])
 				waypointwalkto = true
-				repeat wait()
+				repeat task.wait()
 					local success, response = pcall(function()
 						path:ComputeAsync(getRoot(speaker.Character).Position, TrueCoords)
 						local waypoints = path:GetWaypoints()
@@ -9215,7 +9798,7 @@ addcmd('pathfindwalktowaypoint',{'pathfindwalktowp'},function(args, speaker)
 							hum:MoveTo(waypointPosition)
 							repeat 
 								distance = (waypointPosition - hum.Parent.PrimaryPart.Position).magnitude
-								wait()
+								task.wait()
 							until
 							distance <= 5
 						end
@@ -9230,11 +9813,11 @@ addcmd('pathfindwalktowaypoint',{'pathfindwalktowp'},function(args, speaker)
 			if tostring(pWayPoints[i].NAME):lower() == tostring(WPName):lower() then
 				if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 					speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-					wait(.1)
+					task.wait(.1)
 				end
 				local TrueCoords = pWayPoints[i].COORD[1].Position
 				waypointwalkto = true
-				repeat wait()
+				repeat task.wait()
 					local success, response = pcall(function()
 						path:ComputeAsync(getRoot(speaker.Character).Position, TrueCoords)
 						local waypoints = path:GetWaypoints()
@@ -9244,7 +9827,7 @@ addcmd('pathfindwalktowaypoint',{'pathfindwalktowp'},function(args, speaker)
 							hum:MoveTo(waypointPosition)
 							repeat 
 								distance = (waypointPosition - hum.Parent.PrimaryPart.Position).magnitude
-								wait()
+								task.wait()
 							until
 							distance <= 5
 						end
@@ -9336,25 +9919,6 @@ addcmd("unanchor", {}, function(args, speaker)
     getRoot(speaker.Character).Anchored = false
 end)
 
-oofing = false
-addcmd('loopoof',{},function(args, speaker)
-	oofing = true
-	repeat wait(0.1)
-		for i,v in pairs(Players:GetPlayers()) do
-			if v.Character ~= nil and v.Character:FindFirstChild'Head' then
-				for _,x in pairs(v.Character.Head:GetChildren()) do
-					if x:IsA'Sound' then x.Playing = true end
-				end
-			end
-		end
-	until oofing == false
-end)
-
-addcmd('unloopoof',{},function(args, speaker)
-	oofing = false
-end)
-
-local notifiedRespectFiltering = false
 addcmd('muteboombox',{},function(args, speaker)
 	if not notifiedRespectFiltering and SoundService.RespectFilteringEnabled then notifiedRespectFiltering = true notify('RespectFilteringEnabled','RespectFilteringEnabled is set to true (the command will still work but may only be clientsided)') end
 	local players = getPlayer(args[1], speaker)
@@ -9456,7 +10020,7 @@ addcmd('invisible',{'invis'},function(args, speaker)
 	invisRunning = true
 	-- Full credit to AmokahFox @V3rmillion
 	local Player = speaker
-	repeat wait(.1) until Player.Character
+	repeat task.wait(.1) until Player.Character
 	local Character = Player.Character
 	Character.Archivable = true
 	local IsInvis = false
@@ -9508,7 +10072,7 @@ addcmd('invisible',{'invis'},function(args, speaker)
 		if IsInvis == true then
 			pcall(function()
 				Player.Character = Character
-				wait()
+				task.wait()
 				Character.Parent = workspace
 				Character:FindFirstChildWhichIsA'Humanoid':Destroy()
 				IsInvis = false
@@ -9518,7 +10082,7 @@ addcmd('invisible',{'invis'},function(args, speaker)
 		elseif IsInvis == false then
 			pcall(function()
 				Player.Character = Character
-				wait()
+				task.wait()
 				Character.Parent = workspace
 				Character:FindFirstChildWhichIsA'Humanoid':Destroy()
 				TurnVisible()
@@ -9538,7 +10102,7 @@ addcmd('invisible',{'invis'},function(args, speaker)
 	local CF_1 = Player.Character.Humanoid.RootPart.CFrame
 	Character:MoveTo(Vector3.new(0,math.pi*1000000,0))
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
-	wait(.2)
+	task.wait(.2)
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	InvisibleCharacter = InvisibleCharacter
 	Character.Parent = Lighting
@@ -9590,7 +10154,7 @@ addcmd('toolinvisible',{'toolinvis','tinvis'},function(args, speaker)
 	box.Size = Vector3.new(10,1,10)
 	box.Position = Vector3.new(0,10000,0)
 	box.Parent = workspace
-	local boxTouched = box.Touched:connect(function(part)
+	local boxTouched = box.Touched:Connect(function(part)
 		if (part.Parent.Name == Players.LocalPlayer.Name) then
 			if touched == false then
 				touched = true
@@ -9608,9 +10172,9 @@ addcmd('toolinvisible',{'toolinvis','tinvis'},function(args, speaker)
 			end
 		end
 	end)
-	repeat wait() until Char
+	repeat task.wait() until Char
 	local cleanUp
-	cleanUp = Players.LocalPlayer.CharacterAdded:connect(function(char)
+	cleanUp = Players.LocalPlayer.CharacterAdded:Connect(function(char)
 		boxTouched:Disconnect()
 		box:Destroy()
 		cleanUp:Disconnect()
@@ -9653,7 +10217,7 @@ end)
 
 addcmd("breakvelocity", {}, function(args, speaker)
 	local BeenASecond, V3 = false, Vector3.new(0, 0, 0)
-	delay(1, function()
+	task.delay(1, function()
 		BeenASecond = true
 	end)
 	while not BeenASecond do
@@ -9662,7 +10226,7 @@ addcmd("breakvelocity", {}, function(args, speaker)
 				v.Velocity, v.RotVelocity = V3, V3
 			end
 		end
-		wait()
+		task.wait()
 	end
 end)
 
@@ -9825,7 +10389,7 @@ addcmd("infjump", {"infinitejump"}, function(args, speaker)
 		if not infJumpDebounce then
 			infJumpDebounce = true
 			speaker.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-			wait()
+			task.wait()
 			infJumpDebounce = false
 		end
 	end)
@@ -9949,7 +10513,7 @@ addcmd('loopnobgui',{'loopunbgui','loopnobillboardgui','loopunbillboardgui','loo
 	end
 	local function charPartAdded(part)
 		if part:IsA("BillboardGui") or part:IsA("SurfaceGui") then
-			wait()
+			task.wait()
 			part:Destroy()
 		end
 	end
@@ -10243,7 +10807,7 @@ end)
 addcmd('walktopos',{'walktoposition'},function(args, speaker)
 	if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 		speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-		wait(.1)
+		task.wait(.1)
 	end
 	speaker.Character:FindFirstChildOfClass('Humanoid').WalkToPoint = Vector3.new(args[1],args[2],args[3])
 end)
@@ -10421,51 +10985,22 @@ addcmd("console", {}, function(args, speaker)
 	StarterGui:SetCore("DevConsoleVisible", true)
 end)
 
-addcmd('oldconsole',{},function(args, speaker)
-	-- Thanks wally!!
-	notify("Loading",'Hold on a sec')
-	local _, str = pcall(function()
-		return game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/console.lua", true)
-	end)
-
-	local s, e = loadstring(str)
-	if typeof(s) ~= "function" then
-		return
-	end
-
-	local success, message = pcall(s)
-	if (not success) then
-		if printconsole then
-			printconsole(message)
-		elseif printoutput then
-			printoutput(message)
-		end
-	end
-	wait(1)
-	notify('Console','Press F9 to open the console')
-end)
-
 addcmd("explorer", {"dex"}, function(args, speaker)
-    notify("Loading", "Hold on a sec")
-    loadstring(game:HttpGet("https://github.com/AZYsGithub/DexPlusPlus/releases/latest/download/out.lua"))()
+	notify("Loading", "Hold on a sec")
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
 end)
 
-addcmd("moondex", {"mdex"}, function(args, speaker)
-    notify("Loading", "Hold on a sec")
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
-end)
-
-addcmd("remotespy", {"rspy", "cobalt", "cspy"}, function(args, speaker)
+addcmd("cobalt", {"cspy"}, function(args, speaker)
     notify("Loading", "Hold on a sec")
     -- Full credit to notpoiu, creator of Cobalt
     loadstring(game:HttpGet("https://github.com/notpoiu/cobalt/releases/latest/download/Cobalt.luau"))()
 end)
 
-addcmd("simplespy", {"sspy"}, function(args, speaker)
-    notify("Loading", "Hold on a sec")
-    -- Full credit to exx, creator of SimpleSpy
-    -- also thanks to Amity for fixing
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"))()
+addcmd('remotespy',{'rspy'},function(args, speaker)
+	notify("Loading",'Hold on a sec')
+	-- Full credit to exx, creator of SimpleSpy
+	-- also thanks to Amity for fixing
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"))()
 end)
 
 addcmd('audiologger',{'alogger'},function(args, speaker)
@@ -10480,7 +11015,7 @@ addcmd('loopgoto',{},function(args, speaker)
 		loopgoto = nil
 		if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 			speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-			wait(.1)
+			task.wait(.1)
 		end
 		loopgoto = Players[v]
 		local distance = 3
@@ -10496,7 +11031,7 @@ addcmd('loopgoto',{},function(args, speaker)
 				if Players[v].Character ~= nil then
 					getRoot(speaker.Character).CFrame = getRoot(Players[v].Character).CFrame + Vector3.new(distance,1,0)
 				end
-				wait(lDelay)
+				task.wait(lDelay)
 			else
 				loopgoto = nil
 			end
@@ -10534,7 +11069,7 @@ spamspeed = 1
 addcmd('spam',{},function(args, speaker)
 	spamming = true
 	local spamstring = getstring(1, args)
-	repeat wait(spamspeed)
+	repeat task.wait(spamspeed)
 		chatMessage(spamstring)
 	until spamming == false
 end)
@@ -10565,7 +11100,7 @@ addcmd('pmspam',{},function(args, speaker)
 			local pmspamstring = getstring(2, args)
 			repeat
 				if Players:FindFirstChild(v) then
-					wait(spamspeed)
+					task.wait(spamspeed)
 					chatMessage("/w "..plrName.." "..pmspamstring)
 				else
 					for a,b in pairs(pmspamming) do if b == plrName then table.remove(pmspamming, a) end end
@@ -10696,7 +11231,7 @@ end
 
 addcmd("bang", {"rape"}, function(args, speaker)
 	execCmd("unbang")
-	wait()
+	task.wait()
 	local humanoid = speaker.Character:FindFirstChildWhichIsA("Humanoid")
 	bangAnim = Instance.new("Animation")
 	bangAnim.AnimationId = not r15(speaker) and "rbxassetid://148840371" or "rbxassetid://5918726674"
@@ -10736,7 +11271,7 @@ end)
 addcmd('carpet',{},function(args, speaker)
 	if not r15(speaker) then
 		execCmd('uncarpet')
-		wait()
+		task.wait()
 		local players = getPlayer(args[1], speaker)
 		for i,v in pairs(players)do
 			carpetAnim = Instance.new("Animation")
@@ -10806,9 +11341,9 @@ addcmd('gotopart',{'topart'},function(args, speaker)
 		if v.Name:lower() == getstring(1, args):lower() and v:IsA("BasePart") then
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
-			wait(gotopartDelay)
+			task.wait(gotopartDelay)
 			getRoot(speaker.Character).CFrame = v.CFrame
 		end
 	end
@@ -10819,9 +11354,9 @@ addcmd('tweengotopart',{'tgotopart','ttopart'},function(args, speaker)
 		if v.Name:lower() == getstring(1, args):lower() and v:IsA("BasePart") then
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
-			wait(gotopartDelay)
+			task.wait(gotopartDelay)
 			TweenService:Create(getRoot(speaker.Character), TweenInfo.new(tweenSpeed, Enum.EasingStyle.Linear), {CFrame = v.CFrame}):Play()
 		end
 	end
@@ -10832,9 +11367,9 @@ addcmd('gotopartclass',{'gpc'},function(args, speaker)
 		if v.ClassName:lower() == getstring(1, args):lower() and v:IsA("BasePart") then
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
-			wait(gotopartDelay)
+			task.wait(gotopartDelay)
 			getRoot(speaker.Character).CFrame = v.CFrame
 		end
 	end
@@ -10845,9 +11380,9 @@ addcmd('tweengotopartclass',{'tgpc'},function(args, speaker)
 		if v.ClassName:lower() == getstring(1, args):lower() and v:IsA("BasePart") then
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
-			wait(gotopartDelay)
+			task.wait(gotopartDelay)
 			TweenService:Create(getRoot(speaker.Character), TweenInfo.new(tweenSpeed, Enum.EasingStyle.Linear), {CFrame = v.CFrame}):Play()
 		end
 	end
@@ -10858,9 +11393,9 @@ addcmd('gotomodel',{'tomodel'},function(args, speaker)
 		if v.Name:lower() == getstring(1, args):lower() and v:IsA("Model") then
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
-			wait(gotopartDelay)
+			task.wait(gotopartDelay)
 			getRoot(speaker.Character).CFrame = v:GetModelCFrame()
 		end
 	end
@@ -10871,9 +11406,9 @@ addcmd('tweengotomodel',{'tgotomodel','ttomodel'},function(args, speaker)
 		if v.Name:lower() == getstring(1, args):lower() and v:IsA("Model") then
 			if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 				speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-				wait(.1)
+				task.wait(.1)
 			end
-			wait(gotopartDelay)
+			task.wait(gotopartDelay)
 			TweenService:Create(getRoot(speaker.Character), TweenInfo.new(tweenSpeed, Enum.EasingStyle.Linear), {CFrame = v:GetModelCFrame()}):Play()
 		end
 	end
@@ -10948,7 +11483,7 @@ local PromptButtonHoldBegan = nil
 addcmd('instantproximityprompts',{'instantpp'},function(args, speaker)
 	if fireproximityprompt then
 		execCmd("uninstantproximityprompts")
-		wait(0.1)
+		task.wait(0.1)
 		PromptButtonHoldBegan = ProximityPromptService.PromptButtonHoldBegan:Connect(function(prompt)
 			fireproximityprompt(prompt)
 		end)
@@ -11096,7 +11631,7 @@ addcmd('flashback',{'diedtp'},function(args, speaker)
 	if lastDeath ~= nil then
 		if speaker.Character:FindFirstChildOfClass('Humanoid') and speaker.Character:FindFirstChildOfClass('Humanoid').SeatPart then
 			speaker.Character:FindFirstChildOfClass('Humanoid').Sit = false
-			wait(.1)
+			task.wait(.1)
 		end
 		getRoot(speaker.Character).CFrame = lastDeath
 	end
@@ -11104,7 +11639,7 @@ end)
 
 addcmd('hatspin',{'spinhats'},function(args, speaker)
 	execCmd('unhatspin')
-	wait(.5)
+	task.wait(.5)
 	for _,v in pairs(speaker.Character:FindFirstChildOfClass('Humanoid'):GetAccessories()) do
 		local keep = Instance.new("BodyPosition") keep.Name = randomString() keep.Parent = v.Handle
 		local spin = Instance.new("BodyAngularVelocity") spin.Name = randomString() spin.Parent = v.Handle
@@ -11137,7 +11672,7 @@ addcmd('unhatspin',{'unspinhats'},function(args, speaker)
 				c:Destroy()
 			end
 		end
-		wait()
+		task.wait()
 		v.Parent = speaker.Character
 	end
 end)
@@ -11160,11 +11695,11 @@ addcmd('clearhats',{'cleanhats'},function(args, speaker)
 		end
 
 		for i = 1, #Hats do
-			repeat RunService.Heartbeat:wait() until Hats[i]
+			repeat RunService.Heartbeat:Wait() until Hats[i]
 			firetouchinterest(Hats[i].Handle,getRoot(Character),0)
-			repeat RunService.Heartbeat:wait() until Character:FindFirstChildOfClass("Accessory")
+			repeat RunService.Heartbeat:Wait() until Character:FindFirstChildOfClass("Accessory")
 			Character:FindFirstChildOfClass("Accessory"):Destroy()
-			repeat RunService.Heartbeat:wait() until not Character:FindFirstChildOfClass("Accessory")
+			repeat RunService.Heartbeat:Wait() until not Character:FindFirstChildOfClass("Accessory")
 		end
 
 		execCmd("reset")
@@ -11263,8 +11798,8 @@ addcmd('dupetools', {'clonetools'}, function(args, speaker)
 	local Tools, TempPos = {}, Vector3.new(math.random(-2e5, 2e5), 2e5, math.random(-2e5, 2e5))
 	for i = 1, LOOP_NUM do
 		local Human = speaker.Character:WaitForChild("Humanoid")
-		wait(.1, Human.Parent:MoveTo(TempPos))
-		Human.RootPart.Anchored = speaker:ClearCharacterAppearance(wait(.1)) or true
+		task.wait(.1, Human.Parent:MoveTo(TempPos))
+		Human.RootPart.Anchored = speaker:ClearCharacterAppearance(task.wait(.1)) or true
 		local t = GetHandleTools(speaker)
 		while #t > 0 do
 			for _, v in ipairs(t) do
@@ -11281,9 +11816,9 @@ addcmd('dupetools', {'clonetools'}, function(args, speaker)
 			end
 			t = GetHandleTools(speaker)
 		end
-		wait(.1)
+		task.wait(.1)
 		speaker.Character = speaker.Character:Destroy()
-		speaker.CharacterAdded:Wait():WaitForChild("Humanoid").Parent:MoveTo(LOOP_NUM == i and OrigPos or TempPos, wait(.1))
+		speaker.CharacterAdded:Wait():WaitForChild("Humanoid").Parent:MoveTo(LOOP_NUM == i and OrigPos or TempPos, task.wait(.1))
 		if i == LOOP_NUM or i % 5 == 0 then
 			local HRP = speaker.Character.Humanoid.RootPart
 			if type(firetouchinterest) == "function" then
@@ -11298,13 +11833,13 @@ addcmd('dupetools', {'clonetools'}, function(args, speaker)
 						v.Anchored = false
 						for _ = 1, 10 do
 							v.CFrame = HRP.CFrame
-							wait()
+							task.wait()
 						end
 						v.CanCollide = x
 					end)
 				end
 			end
-			wait(.1)
+			task.wait(.1)
 			Tools = {}
 		end
 		TempPos = TempPos + Vector3.new(10, math.random(-5, 5), 0)
@@ -11323,7 +11858,7 @@ addcmd('touchinterests', {'touchinterest', 'firetouchinterests', 'firetouchinter
 		x = x.FindFirstAncestorWhichIsA(x, "Part")
 		if x then
 			return task.spawn(function()
-				firetouchinterest(x, Root, 1, wait() and firetouchinterest(x, Root, 0))
+				firetouchinterest(x, Root, 1, task.wait() and firetouchinterest(x, Root, 0))
 			end)
 		end
 		x.CFrame = Root.CFrame
@@ -11479,7 +12014,7 @@ addcmd('droptools',{'droptool'},function(args, speaker)
 			v.Parent = Players.LocalPlayer.Character
 		end
 	end
-	wait()
+	task.wait()
 	for i,v in pairs(Players.LocalPlayer.Character:GetChildren()) do
 		if v:IsA("Tool") then
 			v.Parent = workspace
@@ -11508,7 +12043,7 @@ local currentToolSize = ""
 local currentGripPos = ""
 addcmd('reach',{},function(args, speaker)
 	execCmd('unreach')
-	wait()
+	task.wait()
 	for i,v in pairs(speaker.Character:GetDescendants()) do
 		if v:IsA("Tool") then
 			if args[1] then
@@ -11540,7 +12075,7 @@ end)
 
 addcmd("boxreach", {}, function(args, speaker)
 	execCmd("unreach")
-	wait()
+	task.wait()
 	for i, v in pairs(speaker.Character:GetDescendants()) do
 		if v:IsA("Tool") then
 			local size = tonumber(args[1]) or 60
@@ -11588,7 +12123,7 @@ addcmd('usetools', {}, function(args, speaker)
 			for _ = 1, amount do
 				v:Activate()
 				if delay_ then
-					wait(delay_)
+					task.wait(delay_)
 				end
 			end
 			v.Parent = Backpack
@@ -11649,7 +12184,7 @@ addcmd('fling',{},function(args, speaker)
 		end
 	end
 	execCmd('noclip')
-	wait(.1)
+	task.wait(.1)
 	local bambam = Instance.new("BodyAngularVelocity")
 	bambam.Name = randomString()
 	bambam.Parent = getRoot(speaker.Character)
@@ -11671,9 +12206,9 @@ addcmd('fling',{},function(args, speaker)
 	flingDied = speaker.Character:FindFirstChildOfClass('Humanoid').Died:Connect(flingDiedF)
 	repeat
 		bambam.AngularVelocity = Vector3.new(0,99999,0)
-		wait(.2)
+		task.wait(.2)
 		bambam.AngularVelocity = Vector3.new(0,0,0)
-		wait(.1)
+		task.wait(.1)
 	until flinging == false
 end)
 
@@ -11683,7 +12218,7 @@ addcmd('unfling',{'nofling'},function(args, speaker)
 		flingDied:Disconnect()
 	end
 	flinging = false
-	wait(.1)
+	task.wait(.1)
 	local speakerChar = speaker.Character
 	if not speakerChar or not getRoot(speakerChar) then return end
 	for i,v in pairs(getRoot(speakerChar):GetChildren()) do
@@ -11788,9 +12323,9 @@ addcmd('invisfling',{},function(args, speaker)
 	z3.Parent = prt
 	z1.Position = Vector3.new(0,9999,0)
 	speaker.Character=prt
-	wait(3)
+	task.wait(3)
 	speaker.Character=ch
-	wait(3)
+	task.wait(3)
 	local Hum = Instance.new("Humanoid")
 	z2:Clone()
 	Hum.Parent = speaker.Character
@@ -11858,7 +12393,7 @@ function attach(speaker,target)
 		local newHum = hum:Clone()
 		newHum.Parent = char
 		newHum.Name = "Humanoid"
-		wait()
+		task.wait()
 		hum:Destroy()
 		workspace.CurrentCamera.CameraSubject = char
 		newHum.DisplayDistanceType = "None"
@@ -11867,7 +12402,7 @@ function attach(speaker,target)
 		hrp.CFrame = hrp2.CFrame * CFrame.new(0, 0, 0) * CFrame.new(math.random(-100, 100)/200,math.random(-100, 100)/200,math.random(-100, 100)/200)
 		local n = 0
 		repeat
-			wait(.1)
+			task.wait(.1)
 			n = n + 1
 			hrp.CFrame = hrp2.CFrame
 		until (tool.Parent ~= char or not hrp or not hrp2 or not hrp.Parent or not hrp2.Parent or n > 250) and n > 2
@@ -11882,14 +12417,14 @@ function kill(speaker,target,fast)
 			local NormPos = getRoot(speaker.Character).CFrame
 			if not fast then
 				refresh(speaker)
-				wait()
-				repeat wait() until speaker.Character ~= nil and getRoot(speaker.Character)
-				wait(0.3)
+				task.wait()
+				repeat task.wait() until speaker.Character ~= nil and getRoot(speaker.Character)
+				task.wait(0.3)
 			end
 			local hrp = getRoot(speaker.Character)
 			attach(speaker,target)
 			repeat
-				wait()
+				task.wait()
 				hrp.CFrame = CFrame.new(999999, workspace.FallenPartsDestroyHeight + 5,999999)
 			until not getRoot(target.Character) or not getRoot(speaker.Character)
 			local char = speaker.CharacterAdded:Wait()
@@ -11970,14 +12505,14 @@ function bring(speaker,target,fast)
 			local NormPos = getRoot(speaker.Character).CFrame
 			if not fast then
 				refresh(speaker)
-				wait()
-				repeat wait() until speaker.Character ~= nil and getRoot(speaker.Character)
-				wait(0.3)
+				task.wait()
+				repeat task.wait() until speaker.Character ~= nil and getRoot(speaker.Character)
+				task.wait(0.3)
 			end
 			local hrp = getRoot(speaker.Character)
 			attach(speaker,target)
 			repeat
-				wait()
+				task.wait()
 				hrp.CFrame = NormPos
 			until not getRoot(target.Character) or not getRoot(speaker.Character)
 			local char = speaker.CharacterAdded:Wait()
@@ -11998,18 +12533,18 @@ function teleport(speaker,target,target2,fast)
 			local NormPos = getRoot(speaker.Character).CFrame
 			if not fast then
 				refresh(speaker)
-				wait()
-				repeat wait() until speaker.Character ~= nil and getRoot(speaker.Character)
-				wait(0.3)
+				task.wait()
+				repeat task.wait() until speaker.Character ~= nil and getRoot(speaker.Character)
+				task.wait(0.3)
 			end
 			local hrp = getRoot(speaker.Character)
 			local hrp2 = getRoot(target2.Character)
 			attach(speaker,target)
 			repeat
-				wait()
+				task.wait()
 				hrp.CFrame = hrp2.CFrame
 			until not getRoot(target.Character) or not getRoot(speaker.Character)
-			wait(1)
+			task.wait(1)
 			local char = speaker.CharacterAdded:Wait()
 			local humanoid = char:FindFirstChildOfClass("Humanoid") or char.ChildAdded:Wait()
 			while not humanoid:IsA("Humanoid") do
@@ -12117,7 +12652,7 @@ autoclicking = false
 addcmd('autoclick',{},function(args, speaker)
 	if mouse1press and mouse1release then
 		execCmd('unautoclick')
-		wait()
+		task.wait()
 		local clickDelay = 0.1
 		local releaseDelay = 0.1
 		if args[1] and isNumber(args[1]) then clickDelay = args[1] end
@@ -12132,9 +12667,9 @@ addcmd('autoclick',{},function(args, speaker)
 			end
 		end)
 		notify('Auto Clicker',"Press [backspace] and [=] at the same time to stop")
-		repeat wait(clickDelay)
+		repeat task.wait(clickDelay)
 			mouse1press()
-			wait(releaseDelay)
+			task.wait(releaseDelay)
 			mouse1release()
 		until autoclicking == false
 	else
@@ -12155,7 +12690,7 @@ local nameBox = nil
 local nbSelection = nil
 addcmd('hovername',{},function(args, speaker)
 	execCmd('unhovername')
-	wait()
+	task.wait()
 	nameBox = Instance.new("TextLabel")
 	nameBox.Name = randomString()
 	nameBox.Parent = ScaledHolder
@@ -12524,7 +13059,7 @@ addcmd("trip", {}, function(args, speaker)
 end)
 
 addcmd("removeads", {"adblock"}, function(args, speaker)
-	while wait() do
+	while task.wait() do
 		pcall(function()
 			for i, v in pairs(workspace:GetDescendants()) do
 				if v:IsA("PackageLink") then
@@ -12904,7 +13439,7 @@ addcmd('autokeypress',{'keypress'},function(args, speaker)
 		local code = keycodeMap[args[1]:lower()]
 		if not code then notify('Auto Key Press',"Invalid key") return end
 		execCmd('unautokeypress')
-		wait()
+		task.wait()
 		local clickDelay = 0.1
 		local releaseDelay = 0.1
 		if args[2] and isNumber(args[2]) then clickDelay = args[2] end
@@ -12919,9 +13454,9 @@ addcmd('autokeypress',{'keypress'},function(args, speaker)
 			end
 		end)
 		notify('Auto Key Press',"Press [backspace] and [=] at the same time to stop")
-		repeat wait(clickDelay)
+		repeat task.wait(clickDelay)
 			keypress(code)
-			wait(releaseDelay)
+			task.wait(releaseDelay)
 			keyrelease(code)
 		until autoKeyPressing == false
 		if cancelAutoKeyPress then cancelAutoKeyPress:Disconnect() keyrelease(code) end
@@ -12946,7 +13481,7 @@ end)
 addcmd('reloadplugin',{},function(args, speaker)
 	local pluginName = getstring(1, args)
 	deletePlugin(pluginName)
-	wait(1)
+	task.wait(1)
 	addPlugin(pluginName)
 end)
 
@@ -12984,7 +13519,7 @@ if IsOnMobile then
 	local UICorner = Instance.new("UICorner")
 	QuickCapture.Name = randomString()
 	QuickCapture.Parent = PARENT
-	QuickCapture.BackgroundColor3 = Color3.fromRGB(46, 46, 47)
+	QuickCapture.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 	QuickCapture.BackgroundTransparency = 0.14
 	QuickCapture.Position = UDim2.new(0.489, 0, 0, 0)
 	QuickCapture.Size = UDim2.new(0, 32, 0, 33)
@@ -13092,11 +13627,11 @@ Players.PlayerAdded:Connect(function(plr)
 	JoinLog(plr)
 	if isLegacyChat then ChatLog(plr) end
 	if ESPenabled then
-		repeat wait(1) until plr.Character and getRoot(plr.Character)
+		repeat task.wait(1) until plr.Character and getRoot(plr.Character)
 		ESP(plr)
 	end
 	if CHMSenabled then
-		repeat wait(1) until plr.Character and getRoot(plr.Character)
+		repeat task.wait(1) until plr.Character and getRoot(plr.Character)
 		CHMS(plr)
 	end
 end)
@@ -13156,7 +13691,1178 @@ if aliases and #aliases > 0 then
 	refreshaliases()
 end
 
+-- ==========================================
+-- biy EXCLUSIVE COMMANDS
+-- ==========================================
+
+-- Speed Bypass: CFrame-based movement to bypass server-side speed checks
+local speedBypassActive = false
+local speedBypassConnection = nil
+local speedBypassSpeed = 2
+
+addcmd('speedbypass', {'sbypass'}, function(args, speaker)
+	if speedBypassConnection then speedBypassConnection:Disconnect() end
+	speedBypassSpeed = tonumber(args[1]) or 2
+	speedBypassActive = true
+	
+	local character = speaker.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return notify('Speed Bypass', 'Character not found') end
+	
+	-- Set walkspeed to 0 so server sees no speed, movement via CFrame
+	local originalSpeed = humanoid.WalkSpeed
+	humanoid.WalkSpeed = 0
+	
+	speedBypassConnection = RunService.Heartbeat:Connect(function(dt)
+		if not speedBypassActive then return end
+		local char = speaker.Character
+		if not char then return end
+		local root = getRoot(char)
+		local hum = char:FindFirstChildOfClass("Humanoid")
+		if not root or not hum then return end
+		
+		local moveDir = hum.MoveDirection
+		if moveDir.Magnitude > 0 then
+			root.CFrame = root.CFrame + (moveDir * speedBypassSpeed * dt * 60)
+		end
+	end)
+	
+	notify('Speed Bypass', 'Enabled (speed: ' .. speedBypassSpeed .. ')')
+end)
+
+addcmd('unspeedbypass', {'unsbypass'}, function(args, speaker)
+	speedBypassActive = false
+	if speedBypassConnection then
+		speedBypassConnection:Disconnect()
+		speedBypassConnection = nil
+	end
+	pcall(function()
+		speaker.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = 16
+	end)
+	notify('Speed Bypass', 'Disabled')
+end)
+
+-- Phase Walk: CFrame-based noclip that bypasses some anti-cheats
+local phaseWalkActive = false
+local phaseWalkConnection = nil
+local phaseWalkSpeed = 1.2
+
+addcmd('phasewalk', {'phase'}, function(args, speaker)
+	if phaseWalkConnection then phaseWalkConnection:Disconnect() end
+	phaseWalkSpeed = tonumber(args[1]) or 1.2
+	phaseWalkActive = true
+	
+	local character = speaker.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return notify('Phase Walk', 'Character not found') end
+	
+	phaseWalkConnection = RunService.Stepped:Connect(function(_, dt)
+		if not phaseWalkActive then return end
+		local char = speaker.Character
+		if not char then return end
+		local root = getRoot(char)
+		local hum = char:FindFirstChildOfClass("Humanoid")
+		if not root or not hum then return end
+		
+		local moveDir = hum.MoveDirection
+		if moveDir.Magnitude > 0 then
+			-- CFrame offset — passes through walls without toggling CanCollide
+			local offset = moveDir * phaseWalkSpeed * dt * 60
+			root.CFrame = root.CFrame + offset
+		end
+	end)
+	
+	notify('Phase Walk', 'Enabled - walk through walls (speed: ' .. phaseWalkSpeed .. ')')
+end)
+
+addcmd('unphasewalk', {'unphase'}, function(args, speaker)
+	phaseWalkActive = false
+	if phaseWalkConnection then
+		phaseWalkConnection:Disconnect()
+		phaseWalkConnection = nil
+	end
+	notify('Phase Walk', 'Disabled')
+end)
+
+-- Aimlock: Camera auto-looks at a target player
+local aimlockActive = false
+local aimlockTarget = nil
+local aimlockConnection = nil
+
+addcmd('aimlock', {}, function(args, speaker)
+	if aimlockConnection then aimlockConnection:Disconnect() end
+	
+	local players = getPlayer(args[1], speaker)
+	if not players or #players == 0 then
+		return notify('Aimlock', 'Player not found')
+	end
+	
+	local targetName = players[1]
+	local targetPlayer = Players:FindFirstChild(targetName)
+	if not targetPlayer then return notify('Aimlock', 'Player not found') end
+	
+	aimlockTarget = targetPlayer
+	aimlockActive = true
+	
+	aimlockConnection = RunService.RenderStepped:Connect(function()
+		if not aimlockActive or not aimlockTarget then return end
+		local targetChar = aimlockTarget.Character
+		local myChar = speaker.Character
+		if not targetChar or not myChar then return end
+		local targetRoot = getRoot(targetChar)
+		local myRoot = getRoot(myChar)
+		if not targetRoot or not myRoot then return end
+		
+		local camera = workspace.CurrentCamera
+		local targetPos = targetRoot.Position
+		camera.CFrame = CFrame.new(camera.CFrame.Position, targetPos)
+	end)
+	
+	notify('Aimlock', 'Locked onto ' .. formatUsername(targetPlayer))
+end)
+
+addcmd('unaimlock', {}, function(args, speaker)
+	aimlockActive = false
+	aimlockTarget = nil
+	if aimlockConnection then
+		aimlockConnection:Disconnect()
+		aimlockConnection = nil
+	end
+	notify('Aimlock', 'Disabled')
+end)
+
+-- Smart Rejoin: Rejoin the same server with retry logic
+addcmd('smartrejoin', {'srj'}, function(args, speaker)
+	notify('Smart Rejoin', 'Attempting to rejoin same server...')
+	local placeId = PlaceId
+	local jobId = JobId
+	
+	task.spawn(function()
+		local success, err = pcall(function()
+			TeleportService:TeleportToPlaceInstance(placeId, jobId, speaker)
+		end)
+		
+		if not success then
+			task.wait(2)
+			-- Retry with normal teleport if instance rejoin fails
+			pcall(function()
+				TeleportService:Teleport(placeId, speaker)
+			end)
+		end
+	end)
+end)
+
+-- Player Info: Detailed player information panel
+addcmd('playerinfo', {'pinfo'}, function(args, speaker)
+	local players = getPlayer(args[1], speaker)
+	if not players or #players == 0 then
+		return notify('Player Info', 'Player not found')
+	end
+	
+	local targetName = players[1]
+	local targetPlayer = Players:FindFirstChild(targetName)
+	if not targetPlayer then return notify('Player Info', 'Player not found') end
+	
+	local info = {}
+	table.insert(info, "Username: " .. targetPlayer.Name)
+	table.insert(info, "Display: " .. targetPlayer.DisplayName)
+	table.insert(info, "UserID: " .. targetPlayer.UserId)
+	table.insert(info, "Age: " .. targetPlayer.AccountAge .. " days")
+	
+	if targetPlayer.Team then
+		table.insert(info, "Team: " .. targetPlayer.Team.Name)
+	end
+	
+	local char = targetPlayer.Character
+	if char then
+		local hum = char:FindFirstChildOfClass("Humanoid")
+		if hum then
+			table.insert(info, "Health: " .. round(hum.Health, 1) .. "/" .. round(hum.MaxHealth, 1))
+			table.insert(info, "WalkSpeed: " .. round(hum.WalkSpeed, 1))
+			table.insert(info, "JumpPower: " .. round(hum.JumpPower, 1))
+		end
+		
+		local myChar = speaker.Character
+		if myChar and getRoot(myChar) and getRoot(char) then
+			local dist = (getRoot(myChar).Position - getRoot(char).Position).Magnitude
+			table.insert(info, "Distance: " .. round(dist, 1) .. " studs")
+		end
+		
+		local pos = getRoot(char) and getRoot(char).Position
+		if pos then
+			table.insert(info, "Position: " .. round(pos.X, 0) .. ", " .. round(pos.Y, 0) .. ", " .. round(pos.Z, 0))
+		end
+	end
+	
+	-- Create popup GUI
+	task.spawn(function()
+		local FRAME = Instance.new("Frame")
+		local shadow = Instance.new("Frame")
+		local PopupText = Instance.new("TextLabel")
+		local Exit = Instance.new("TextButton")
+		local ExitImage = Instance.new("ImageLabel")
+		local background = Instance.new("Frame")
+		local InfoText = Instance.new("TextLabel")
+		
+		FRAME.Name = randomString()
+		FRAME.Parent = ScaledHolder
+		FRAME.Active = true
+		FRAME.BackgroundTransparency = 1
+		FRAME.Position = UDim2.new(0.5, -140, 0, -500)
+		FRAME.Size = UDim2.new(0, 280, 0, 20)
+		FRAME.ZIndex = 10
+		dragGUI(FRAME)
+		
+		shadow.Name = "shadow"
+		shadow.Parent = FRAME
+		shadow.BackgroundColor3 = currentShade2
+		shadow.BorderSizePixel = 0
+		shadow.Size = UDim2.new(0, 280, 0, 20)
+		shadow.ZIndex = 10
+		local shadowCorner = Instance.new("UICorner")
+		shadowCorner.CornerRadius = UDim.new(0, 6)
+		shadowCorner.Parent = shadow
+		table.insert(shade2, shadow)
+		
+		PopupText.Name = "PopupText"
+		PopupText.Parent = shadow
+		PopupText.BackgroundTransparency = 1
+		PopupText.Size = UDim2.new(1, 0, 0.95, 0)
+		PopupText.ZIndex = 10
+		PopupText.Font = Enum.Font.GothamMedium
+		PopupText.TextSize = 13
+		PopupText.Text = "Player Info: " .. targetPlayer.Name
+		PopupText.TextColor3 = currentText1
+		PopupText.TextWrapped = true
+		table.insert(text1, PopupText)
+		
+		Exit.Name = "Exit"
+		Exit.Parent = shadow
+		Exit.BackgroundTransparency = 1
+		Exit.Position = UDim2.new(1, -20, 0, 0)
+		Exit.Size = UDim2.new(0, 20, 0, 20)
+		Exit.Text = ""
+		Exit.ZIndex = 10
+		
+		ExitImage.Parent = Exit
+		ExitImage.BackgroundColor3 = Color3.new(1, 1, 1)
+		ExitImage.BackgroundTransparency = 1
+		ExitImage.Position = UDim2.new(0, 5, 0, 5)
+		ExitImage.Size = UDim2.new(0, 10, 0, 10)
+		ExitImage.Image = getcustomasset("infiniteyield/assets/close.png")
+		ExitImage.ZIndex = 10
+		
+		background.Name = "background"
+		background.Parent = FRAME
+		background.Active = true
+		background.BackgroundColor3 = currentShade1
+		background.BorderSizePixel = 0
+		background.Position = UDim2.new(0, 0, 1, 0)
+		background.Size = UDim2.new(0, 280, 0, 0)
+		background.ZIndex = 10
+		background.ClipsDescendants = true
+		local bgCorner = Instance.new("UICorner")
+		bgCorner.CornerRadius = UDim.new(0, 6)
+		bgCorner.Parent = background
+		table.insert(shade1, background)
+		
+		InfoText.Parent = background
+		InfoText.BackgroundTransparency = 1
+		InfoText.Position = UDim2.new(0, 8, 0, 5)
+		InfoText.Size = UDim2.new(1, -16, 1, -10)
+		InfoText.ZIndex = 10
+		InfoText.Font = Enum.Font.GothamMedium
+		InfoText.TextSize = 12
+		InfoText.Text = table.concat(info, "\n")
+		InfoText.TextColor3 = currentText1
+		InfoText.TextXAlignment = Enum.TextXAlignment.Left
+		InfoText.TextYAlignment = Enum.TextYAlignment.Top
+		InfoText.TextWrapped = true
+		table.insert(text1, InfoText)
+		
+		local textHeight = #info * 16 + 15
+		FRAME:TweenPosition(UDim2.new(0.5, -140, 0, 100), "InOut", "Quart", 0.5, true, nil)
+		background:TweenSize(UDim2.new(0, 280, 0, textHeight), "InOut", "Quart", 0.3, true, nil)
+		
+		Exit.MouseButton1Click:Connect(function()
+			FRAME:TweenPosition(UDim2.new(0.5, -140, 0, -500), "InOut", "Quart", 0.5, true, nil)
+			task.wait(0.6)
+			FRAME:Destroy()
+		end)
+	end)
+end)
+
+-- Command Favorites
+local favoriteCmds = {}
+
+addcmd('favoritecmd', {'fav'}, function(args, speaker)
+	if not args[1] then return notify('Favorites', 'Please specify a command name') end
+	local cmdName = string.lower(args[1])
+	if not FindInTable(favoriteCmds, cmdName) then
+		table.insert(favoriteCmds, cmdName)
+		notify('Favorites', 'Added "' .. cmdName .. '" to favorites')
+	else
+		notify('Favorites', '"' .. cmdName .. '" is already in favorites')
+	end
+end)
+
+addcmd('unfavoritecmd', {'unfav'}, function(args, speaker)
+	if not args[1] then return notify('Favorites', 'Please specify a command name') end
+	local cmdName = string.lower(args[1])
+	for i = #favoriteCmds, 1, -1 do
+		if favoriteCmds[i] == cmdName then
+			table.remove(favoriteCmds, i)
+			notify('Favorites', 'Removed "' .. cmdName .. '" from favorites')
+			return
+		end
+	end
+	notify('Favorites', '"' .. cmdName .. '" is not in favorites')
+end)
+
+-- Smart Anti-Teleport: Blocks forced TPs but allows your own rejoin/serverhop
+local smartAntiTPActive = false
+local smartAntiTPHook = nil
+local allowedTPIds = {}
+
+addcmd('smartantiteleport', {'smartantitp'}, function(args, speaker)
+	if smartAntiTPActive then return notify('Smart Anti-TP', 'Already enabled') end
+	smartAntiTPActive = true
+	
+	-- Remember current place for allowed self-teleports
+	table.insert(allowedTPIds, PlaceId)
+	
+	local oldTeleport = TeleportService.Teleport
+	local oldTeleportPlace = TeleportService.TeleportToPlaceInstance
+	
+	-- Hook Teleport calls 
+	smartAntiTPHook = Players.LocalPlayer.OnTeleport:Connect(function(state, placeId, spawnName)
+		if state == Enum.TeleportState.Started then
+			-- Check if this was initiated by us (IY command)
+			local isAllowed = false
+			for _, id in pairs(allowedTPIds) do
+				if placeId == id then isAllowed = true break end
+			end
+			
+			if not isAllowed then
+				notify('Smart Anti-TP', 'Blocked teleport to PlaceID: ' .. tostring(placeId))
+			end
+		end
+	end)
+	
+	notify('Smart Anti-TP', 'Enabled - forced teleports will be detected')
+end)
+
+addcmd('unsmartantiteleport', {'unsmartantitp'}, function(args, speaker)
+	smartAntiTPActive = false
+	if smartAntiTPHook then
+		smartAntiTPHook:Disconnect()
+		smartAntiTPHook = nil
+	end
+	allowedTPIds = {}
+	notify('Smart Anti-TP', 'Disabled')
+end)
+
+-- ==========================================
+-- biy 30 NEW UTILITY & FUN COMMANDS
+-- ==========================================
+local originalGfx = {}
+local mutedSounds = {}
+local disabledParticles = {}
+local rbAmbientActive = false
+local tiltConn = nil
+local lockCamConn = nil
+local freezeCamConn = nil
+
+addcmd('serverfps', {'sfps'}, function(args, speaker)
+	local t1 = os.clock()
+	RunService.Heartbeat:Once(function()
+		local fps = math.round(1 / (os.clock() - t1))
+		notify('Server FPS', 'Estimated heartbeat rate: ' .. fps .. ' FPS')
+	end)
+end)
+
+addcmd('cdname', {'copydisplayname'}, function(args, speaker)
+	local players = getPlayer(args[1], speaker)
+	if #players > 0 then
+		toClipboard(players[1].DisplayName)
+	else
+		notify('Copy Display Name', 'Player not found.')
+	end
+end)
+
+addcmd('lowgfx', {'fpsboost'}, function(args, speaker)
+	originalGfx = {}
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("Decal") or v:IsA("Texture") then
+			originalGfx[v] = {Parent = v.Parent, Texture = v.Texture}
+			v.Texture = ""
+		elseif v:IsA("BasePart") then
+			originalGfx[v] = {Material = v.Material}
+			v.Material = Enum.Material.SmoothPlastic
+		end
+	end
+	Lighting.GlobalShadows = false
+	notify('FPS Boost', 'Graphics simplified for performance boost')
+end)
+
+addcmd('resetgfx', {'normalgfx'}, function(args, speaker)
+	for obj, data in pairs(originalGfx) do
+		if obj and obj.Parent then
+			if data.Texture then
+				obj.Texture = data.Texture
+			elseif data.Material then
+				obj.Material = data.Material
+			end
+		end
+	end
+	originalGfx = {}
+	Lighting.GlobalShadows = true
+	notify('FPS Boost', 'Graphics settings restored')
+end)
+
+addcmd('muteall', {}, function(args, speaker)
+	mutedSounds = {}
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("Sound") then
+			mutedSounds[v] = v.Volume
+			v.Volume = 0
+		end
+	end
+	for _, v in ipairs(SoundService:GetDescendants()) do
+		if v:IsA("Sound") then
+			mutedSounds[v] = v.Volume
+			v.Volume = 0
+		end
+	end
+	notify('Mute Audio', 'All game audio muted')
+end)
+
+addcmd('unmuteall', {}, function(args, speaker)
+	for obj, vol in pairs(mutedSounds) do
+		if obj and obj.Parent then
+			obj.Volume = vol
+		end
+	end
+	mutedSounds = {}
+	notify('Mute Audio', 'All game audio unmuted')
+end)
+
+addcmd('blockparticles', {'noparticles'}, function(args, speaker)
+	disabledParticles = {}
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("ParticleEmitter") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") then
+			disabledParticles[v] = v.Enabled
+			v.Enabled = false
+		end
+	end
+	notify('Block Particles', 'All particle effects disabled')
+end)
+
+addcmd('unblockparticles', {}, function(args, speaker)
+	for obj, enabled in pairs(disabledParticles) do
+		if obj and obj.Parent then
+			obj.Enabled = enabled
+		end
+	end
+	disabledParticles = {}
+	notify('Block Particles', 'All particle effects restored')
+end)
+
+addcmd('resetambient', {}, function(args, speaker)
+	Lighting.Ambient = Color3.fromRGB(128, 128, 128)
+end)
+
+addcmd('rainbowambient', {'rbambient'}, function(args, speaker)
+	rbAmbientActive = true
+	notify('Rainbow Ambient', 'Rainbow ambient enabled')
+	task.spawn(function()
+		local h = 0
+		while rbAmbientActive do
+			Lighting.Ambient = Color3.fromHSV(h, 0.8, 0.8)
+			h = (h + 0.01) % 1
+			task.wait(0.05)
+		end
+	end)
+end)
+
+addcmd('unrainbowambient', {}, function(args, speaker)
+	rbAmbientActive = false
+	notify('Rainbow Ambient', 'Rainbow ambient disabled')
+end)
+
+addcmd('fogc', {'fogcolor'}, function(args, speaker)
+	local r = tonumber(args[1]) or 128
+	local g = tonumber(args[2]) or 128
+	local b = tonumber(args[3]) or 128
+	Lighting.FogColor = Color3.fromRGB(r, g, b)
+end)
+
+addcmd('foge', {'fogend'}, function(args, speaker)
+	Lighting.FogEnd = tonumber(args[1]) or 100000
+end)
+
+addcmd('rgrav', {'resetgravity'}, function(args, speaker)
+	workspace.Gravity = 196.2
+end)
+
+addcmd('rfov', {'resetfov'}, function(args, speaker)
+	workspace.CurrentCamera.FieldOfView = 70
+end)
+
+addcmd('camtilt', {}, function(args, speaker)
+	if tiltConn then tiltConn:Disconnect() end
+	local tilt = tonumber(args[1]) or 15
+	local cam = workspace.CurrentCamera
+	tiltConn = RunService.RenderStepped:Connect(function()
+		cam.CFrame = cam.CFrame * CFrame.Angles(0, 0, math.rad(tilt))
+	end)
+	notify('Camera Tilt', 'Camera tilt set to ' .. tilt)
+end)
+
+addcmd('untilt', {}, function(args, speaker)
+	if tiltConn then
+		tiltConn:Disconnect()
+		tiltConn = nil
+		notify('Camera Tilt', 'Camera tilt disabled')
+	end
+end)
+
+addcmd('lockcam', {'lockcamera'}, function(args, speaker)
+	if lockCamConn then lockCamConn:Disconnect() end
+	local cam = workspace.CurrentCamera
+	local pos = cam.CFrame.Position
+	lockCamConn = RunService.RenderStepped:Connect(function()
+		cam.CFrame = CFrame.new(pos) * (cam.CFrame - cam.CFrame.Position)
+	end)
+	notify('Camera Lock', 'Camera position locked')
+end)
+
+addcmd('unlockcam', {'unlockcamera'}, function(args, speaker)
+	if lockCamConn then
+		lockCamConn:Disconnect()
+		lockCamConn = nil
+		notify('Camera Lock', 'Camera position unlocked')
+	end
+end)
+
+addcmd('nodecals', {'cleardecals'}, function(args, speaker)
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("Decal") or v:IsA("Texture") then
+			v:Destroy()
+		end
+	end
+	notify('Clear Decals', 'Deleted all decals/textures in Workspace')
+end)
+
+addcmd('csid', {'copyserverid'}, function(args, speaker)
+	toClipboard(game.JobId)
+	notify('Server ID', 'Copied JobId to clipboard')
+end)
+
+addcmd('partcount', {'showparts'}, function(args, speaker)
+	local parts = 0
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("BasePart") then
+			parts = parts + 1
+		end
+	end
+	notify('Part Count', 'Workspace has ' .. parts .. ' parts.')
+end)
+
+addcmd('getfps', {}, function(args, speaker)
+	local lastTime = os.clock()
+	local frameCount = 0
+	local connection
+	connection = RunService.RenderStepped:Connect(function()
+		frameCount = frameCount + 1
+		local elapsed = os.clock() - lastTime
+		if elapsed >= 1 then
+			local fps = math.round(frameCount / elapsed)
+			notify('Client FPS', 'Current FPS: ' .. fps)
+			connection:Disconnect()
+		end
+	end)
+end)
+
+addcmd('freezecam', {'fcam'}, function(args, speaker)
+	if freezeCamConn then freezeCamConn:Disconnect() end
+	local cam = workspace.CurrentCamera
+	local targetCFrame = cam.CFrame
+	freezeCamConn = RunService.RenderStepped:Connect(function()
+		cam.CameraType = Enum.CameraType.Scriptable
+		cam.CFrame = targetCFrame
+	end)
+	notify('Freeze Cam', 'Camera position frozen')
+end)
+
+addcmd('unfreezecam', {'unfcam'}, function(args, speaker)
+	if freezeCamConn then
+		freezeCamConn:Disconnect()
+		freezeCamConn = nil
+		local cam = workspace.CurrentCamera
+		cam.CameraType = Enum.CameraType.Custom
+		notify('Freeze Cam', 'Camera position unfrozen')
+	end
+end)
+
+addcmd('hidechat', {}, function(args, speaker)
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+	notify('Chat Visibility', 'Roblox chat hidden')
+end)
+
+addcmd('showchat', {}, function(args, speaker)
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, true)
+	notify('Chat Visibility', 'Roblox chat shown')
+end)
+
+addcmd('killchar', {'breakjoints'}, function(args, speaker)
+	local char = speaker.Character
+	if char then
+		char:BreakJoints()
+		notify('Kill Character', 'Killed character locally')
+	end
+end)
+
+addcmd('nosounds', {'removesounds'}, function(args, speaker)
+	local count = 0
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("Sound") then
+			v:Destroy()
+			count = count + 1
+		end
+	end
+	notify('Remove Sounds', 'Deleted ' .. count .. ' sounds from Workspace')
+end)
+
+addcmd('clearparticles', {'removeparticles'}, function(args, speaker)
+	local count = 0
+	for _, v in ipairs(workspace:GetDescendants()) do
+		if v:IsA("ParticleEmitter") or v:IsA("Fire") or v:IsA("Smoke") or v:IsA("Sparkles") then
+			v:Destroy()
+			count = count + 1
+		end
+	end
+	notify('Remove Particles', 'Deleted ' .. count .. ' particle effects from Workspace')
+end)
+
+-- ==========================================
+-- AIMBOT & SILENT AIM SYSTEM
+-- ==========================================
+
+local aimbotEnabled = false
+local aimbotPart = "Head"
+local aimbotFov = 150
+local aimbotTeamCheck = false
+local aimbotSmoothness = 1
+local aimbotWallCheck = false
+local aimbotFovCircle = false
+local aimbotLockKey = Enum.UserInputType.MouseButton2 -- Right click
+
+local silentAimEnabled = false
+local silentAimPart = "Head"
+local silentAimFov = 150
+local silentAimTeamCheck = false
+local silentAimFovCircle = false
+
+local isAiming = false
+
+-- drawing fov circles
+local aimFovCircle
+local silentFovCircle
+
+pcall(function()
+	if Drawing then
+		aimFovCircle = Drawing.new("Circle")
+		aimFovCircle.Color = Color3.fromRGB(255, 255, 255)
+		aimFovCircle.Thickness = 1
+		aimFovCircle.NumSides = 64
+		aimFovCircle.Radius = aimbotFov
+		aimFovCircle.Filled = false
+		aimFovCircle.Visible = false
+
+		silentFovCircle = Drawing.new("Circle")
+		silentFovCircle.Color = Color3.fromRGB(255, 80, 80)
+		silentFovCircle.Thickness = 1
+		silentFovCircle.NumSides = 64
+		silentFovCircle.Radius = silentAimFov
+		silentFovCircle.Filled = false
+		silentFovCircle.Visible = false
+	end
+end)
+
+-- target selector helpers
+local function getAimbotTarget()
+	local closestPlr = nil
+	local shortestDistance = aimbotFov
+	local mousePos = UserInputService:GetMouseLocation()
+	local camera = workspace.CurrentCamera
+
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr ~= Players.LocalPlayer and plr.Character then
+			local char = plr.Character
+			local targetPart = char:FindFirstChild(aimbotPart) or char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
+			local hum = char:FindFirstChildOfClass("Humanoid")
+			if targetPart and hum and hum.Health > 0 then
+				if aimbotTeamCheck and plr.Team == Players.LocalPlayer.Team then
+					continue
+				end
+				if aimbotWallCheck then
+					local castPoints = {camera.CFrame.Position, targetPart.Position}
+					local ignoreList = {Players.LocalPlayer.Character, char}
+					local parts = camera:GetPartsObscuringTarget(castPoints, ignoreList)
+					if #parts > 0 then
+						continue
+					end
+				end
+				local screenPos, onScreen = camera:WorldToViewportPoint(targetPart.Position)
+				if onScreen then
+					local dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+					if dist < shortestDistance then
+						shortestDistance = dist
+						closestPlr = plr
+					end
+				end
+			end
+		end
+	end
+	return closestPlr
+end
+
+local function getSilentAimTarget()
+	local closestPlr = nil
+	local shortestDistance = silentAimFov
+	local mousePos = UserInputService:GetMouseLocation()
+	local camera = workspace.CurrentCamera
+
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr ~= Players.LocalPlayer and plr.Character then
+			local char = plr.Character
+			local targetPart = char:FindFirstChild(silentAimPart) or char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
+			local hum = char:FindFirstChildOfClass("Humanoid")
+			if targetPart and hum and hum.Health > 0 then
+				if silentAimTeamCheck and plr.Team == Players.LocalPlayer.Team then
+					continue
+				end
+				local screenPos, onScreen = camera:WorldToViewportPoint(targetPart.Position)
+				if onScreen then
+					local dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+					if dist < shortestDistance then
+						shortestDistance = dist
+						closestPlr = plr
+					end
+				end
+			end
+		end
+	end
+	return closestPlr and (closestPlr.Character:FindFirstChild(silentAimPart) or closestPlr.Character:FindFirstChild("Head"))
+end
+
+-- input listeners for aiming
+local aimInputBegan = UserInputService.InputBegan:Connect(function(input, processed)
+	if not processed then
+		if input.UserInputType == aimbotLockKey or input.KeyCode == aimbotLockKey then
+			isAiming = true
+		end
+	end
+end)
+
+local aimInputEnded = UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == aimbotLockKey or input.KeyCode == aimbotLockKey then
+		isAiming = false
+	end
+end)
+
+-- renderstepped tracking and fov updates
+local aimbotRenderConn = RunService.RenderStepped:Connect(function()
+	local camera = workspace.CurrentCamera
+	local mousePos = UserInputService:GetMouseLocation()
+
+	if aimFovCircle then
+		aimFovCircle.Visible = aimbotEnabled and aimbotFovCircle
+		aimFovCircle.Position = mousePos
+		aimFovCircle.Radius = aimbotFov
+	end
+	if silentFovCircle then
+		silentFovCircle.Visible = silentAimEnabled and silentAimFovCircle
+		silentFovCircle.Position = mousePos
+		silentFovCircle.Radius = silentAimFov
+	end
+
+	if aimbotEnabled and isAiming then
+		local targetPlr = getAimbotTarget()
+		if targetPlr and targetPlr.Character then
+			local targetPart = targetPlr.Character:FindFirstChild(aimbotPart) or targetPlr.Character:FindFirstChild("Head") or targetPlr.Character:FindFirstChild("HumanoidRootPart")
+			if targetPart then
+				local targetCFrame = CFrame.new(camera.CFrame.Position, targetPart.Position)
+				if aimbotSmoothness > 1 then
+					camera.CFrame = camera.CFrame:Lerp(targetCFrame, 1 / aimbotSmoothness)
+				else
+					camera.CFrame = targetCFrame
+				end
+			end
+		end
+	end
+end)
+
+-- Metatable Hooks for Silent Aim
+local Mouse = Players.LocalPlayer:GetMouse()
+local oldIndex
+pcall(function()
+	if hookmetamethod then
+		oldIndex = hookmetamethod(game, "__index", function(self, key)
+			if not checkcaller() and silentAimEnabled and self == Mouse then
+				if key == "Hit" or key == "hit" then
+					local targetPart = getSilentAimTarget()
+					if targetPart then
+						return targetPart.CFrame
+					end
+				elseif key == "Target" or key == "target" then
+					local targetPart = getSilentAimTarget()
+					if targetPart then
+						return targetPart
+					end
+				end
+			end
+			return oldIndex(self, key)
+		end)
+	end
+end)
+
+local oldNamecall
+pcall(function()
+	if hookmetamethod then
+		oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+			local method = getnamecallmethod()
+			local args = {...}
+			if not checkcaller() and silentAimEnabled and self == workspace and method == "Raycast" then
+				local targetPart = getSilentAimTarget()
+				if targetPart then
+					local origin = args[1]
+					local dir = args[2]
+					if typeof(origin) == "Vector3" and typeof(dir) == "Vector3" then
+						args[2] = (targetPart.Position - origin).Unit * dir.Magnitude
+						return oldNamecall(self, table.unpack(args))
+					end
+				end
+			end
+			return oldNamecall(self, ...)
+		end)
+	end
+end)
+
+-- Add Aimbot & Silent Aim commands
+addcmd('aimbot', {'toggleaimbot', 'aim'}, function(args, speaker)
+	aimbotEnabled = not aimbotEnabled
+	notify('Aimbot', aimbotEnabled and 'Aimbot Enabled (Hold RMB to Lock)' or 'Aimbot Disabled')
+end)
+
+addcmd('aimbotpart', {'aimpart'}, function(args, speaker)
+	local part = args[1]
+	if part then
+		if part:lower() == "head" then
+			aimbotPart = "Head"
+		elseif part:lower() == "torso" then
+			aimbotPart = "Torso"
+		elseif part:lower() == "humanoidrootpart" or part:lower() == "hrp" then
+			aimbotPart = "HumanoidRootPart"
+		else
+			aimbotPart = part
+		end
+		notify('Aimbot Target Part', 'Set to: ' .. aimbotPart)
+	else
+		notify('Aimbot Target Part', 'Current: ' .. aimbotPart)
+	end
+end)
+
+addcmd('aimbotfov', {'aimfov'}, function(args, speaker)
+	local val = tonumber(args[1])
+	if val then
+		aimbotFov = val
+		notify('Aimbot FOV', 'Set to: ' .. aimbotFov)
+	else
+		notify('Aimbot FOV', 'Current: ' .. aimbotFov)
+	end
+end)
+
+addcmd('aimbotteamcheck', {'aimteam'}, function(args, speaker)
+	aimbotTeamCheck = not aimbotTeamCheck
+	notify('Aimbot Team Check', aimbotTeamCheck and 'Enabled' or 'Disabled')
+end)
+
+addcmd('aimbotsmoothness', {'aimsmooth'}, function(args, speaker)
+	local val = tonumber(args[1])
+	if val then
+		aimbotSmoothness = math.max(1, val)
+		notify('Aimbot Smoothness', 'Set to: ' .. aimbotSmoothness)
+	else
+		notify('Aimbot Smoothness', 'Current: ' .. aimbotSmoothness)
+	end
+end)
+
+addcmd('aimbotwallcheck', {'aimwall'}, function(args, speaker)
+	aimbotWallCheck = not aimbotWallCheck
+	notify('Aimbot Wall Check', aimbotWallCheck and 'Enabled' or 'Disabled')
+end)
+
+addcmd('aimbotdrawfov', {'aimdrawfov', 'aimcircle'}, function(args, speaker)
+	aimbotFovCircle = not aimbotFovCircle
+	notify('Aimbot FOV Circle', aimbotFovCircle and 'Visible' or 'Hidden')
+end)
+
+addcmd('silentaim', {'saim', 'togglesilentaim'}, function(args, speaker)
+	silentAimEnabled = not silentAimEnabled
+	notify('Silent Aim', silentAimEnabled and 'Silent Aim Enabled' or 'Silent Aim Disabled')
+end)
+
+addcmd('silentaimpart', {'saimpart'}, function(args, speaker)
+	local part = args[1]
+	if part then
+		if part:lower() == "head" then
+			silentAimPart = "Head"
+		elseif part:lower() == "torso" then
+			silentAimPart = "Torso"
+		elseif part:lower() == "humanoidrootpart" or part:lower() == "hrp" then
+			silentAimPart = "HumanoidRootPart"
+		else
+			silentAimPart = part
+		end
+		notify('Silent Aim Part', 'Set to: ' .. silentAimPart)
+	else
+		notify('Silent Aim Part', 'Current: ' .. silentAimPart)
+	end
+end)
+
+addcmd('silentaimfov', {'saimfov'}, function(args, speaker)
+	local val = tonumber(args[1])
+	if val then
+		silentAimFov = val
+		notify('Silent Aim FOV', 'Set to: ' .. silentAimFov)
+	else
+		notify('Silent Aim FOV', 'Current: ' .. silentAimFov)
+	end
+end)
+
+addcmd('silentaimteamcheck', {'saimteam'}, function(args, speaker)
+	silentAimTeamCheck = not silentAimTeamCheck
+	notify('Silent Aim Team Check', silentAimTeamCheck and 'Enabled' or 'Disabled')
+end)
+
+addcmd('silentaimdrawfov', {'saimdrawfov', 'saimcircle'}, function(args, speaker)
+	silentAimFovCircle = not silentAimFovCircle
+	notify('Silent Aim FOV Circle', silentAimFovCircle and 'Visible' or 'Hidden')
+end)
+
+
+-- ==========================================
+-- VIDEO DISPLAY (VIDEO PLAYER)
+-- ==========================================
+
+addcmd('videodisplay', {'vd'}, function(args, speaker)
+	local asset = args[1] or "5608321898"
+	if not asset:find("://") then
+		if tonumber(asset) then
+			asset = "rbxassetid://" .. asset
+		else
+			asset = "rbxassets://" .. asset
+		end
+	end
+
+	-- Create UI Elements
+	local VideoContainer = Instance.new("VideoFrame")
+	local CloseBtn = Instance.new("TextButton")
+	local CloseCorner = Instance.new("UICorner")
+	local ResizeHandle = Instance.new("ImageButton")
+
+	-- Video Container Styling
+	VideoContainer.Name = "VideoPlayer_" .. randomString()
+	VideoContainer.Size = UDim2.new(0, 320, 0, 240)
+	VideoContainer.Position = UDim2.new(0.5, -160, 0.5, -120)
+	VideoContainer.BackgroundColor3 = Color3.new(0, 0, 0)
+	VideoContainer.BorderSizePixel = 0
+	VideoContainer.Active = true
+	VideoContainer.Video = asset
+	VideoContainer.Looped = true
+	VideoContainer.Playing = true
+	VideoContainer.Volume = 0.5
+	VideoContainer.Parent = PARENT
+
+	-- Close Button Styling
+	CloseBtn.Name = "CloseButton"
+	CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+	CloseBtn.Position = UDim2.new(1, -26, 0, 4)
+	CloseBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	CloseBtn.BackgroundTransparency = 0.7
+	CloseBtn.Text = "✕"
+	CloseBtn.TextColor3 = Color3.fromRGB(250, 100, 100)
+	CloseBtn.TextTransparency = 0.5
+	CloseBtn.TextSize = 12
+	CloseBtn.Font = Enum.Font.GothamBold
+	CloseBtn.ZIndex = 12
+	CloseBtn.Parent = VideoContainer
+
+	CloseCorner.CornerRadius = UDim.new(1, 0)
+	CloseCorner.Parent = CloseBtn
+
+	CloseBtn.MouseButton1Click:Connect(function()
+		VideoContainer:Destroy()
+	end)
+
+	-- Resize Handle Styling
+	ResizeHandle.Name = "ResizeHandle"
+	ResizeHandle.Size = UDim2.new(0, 15, 0, 15)
+	ResizeHandle.Position = UDim2.new(1, -15, 1, -15)
+	ResizeHandle.BackgroundTransparency = 1
+	ResizeHandle.Image = "rbxassetid://6031267431"
+	ResizeHandle.ImageColor3 = Color3.fromRGB(200, 200, 200)
+	ResizeHandle.ImageTransparency = 0.7
+	ResizeHandle.ZIndex = 12
+	ResizeHandle.Parent = VideoContainer
+
+	-- Hover Visual Effects
+	VideoContainer.MouseEnter:Connect(function()
+		TweenService:Create(CloseBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0.4, TextTransparency = 0}):Play()
+		TweenService:Create(ResizeHandle, TweenInfo.new(0.2), {ImageTransparency = 0.2}):Play()
+	end)
+
+	VideoContainer.MouseLeave:Connect(function()
+		TweenService:Create(CloseBtn, TweenInfo.new(0.2), {BackgroundTransparency = 0.7, TextTransparency = 0.5}):Play()
+		TweenService:Create(ResizeHandle, TweenInfo.new(0.2), {ImageTransparency = 0.7}):Play()
+	end)
+
+	-- Dragging Logic
+	dragGUI(VideoContainer)
+
+	-- Resizing Logic
+	local resizing = false
+	local resizeStartSize
+	local resizeStartMouse
+
+	ResizeHandle.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			resizing = true
+			resizeStartSize = VideoContainer.Size
+			resizeStartMouse = input.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					resizing = false
+				end
+			end)
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - resizeStartMouse
+			local newX = math.clamp(resizeStartSize.X.Offset + delta.X, 150, 1200)
+			local newY = math.clamp(resizeStartSize.Y.Offset + delta.Y, 100, 900)
+			VideoContainer.Size = UDim2.new(0, newX, 0, newY)
+		end
+	end)
+
+	-- Play/Pause on Video Click (excluding close and resize controls)
+	VideoContainer.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			local mousePos = input.Position
+			local closeAbsPos = CloseBtn.AbsolutePosition
+			local closeAbsSize = CloseBtn.AbsoluteSize
+			local resizeAbsPos = ResizeHandle.AbsolutePosition
+			local resizeAbsSize = ResizeHandle.AbsoluteSize
+			
+			local insideClose = mousePos.X >= closeAbsPos.X and mousePos.X <= closeAbsPos.X + closeAbsSize.X and
+								mousePos.Y >= closeAbsPos.Y and mousePos.Y <= closeAbsPos.Y + closeAbsSize.Y
+			
+			local insideResize = mousePos.X >= resizeAbsPos.X and mousePos.X <= resizeAbsPos.X + resizeAbsSize.X and
+								 mousePos.Y >= resizeAbsPos.Y and mousePos.Y <= resizeAbsPos.Y + resizeAbsSize.Y
+								 
+			if not insideClose and not insideResize then
+				VideoContainer.Playing = not VideoContainer.Playing
+			end
+		end
+	end)
+
+	notify('Video Player', 'Started playing asset: ' .. asset)
+end)
+
+local colorsList = {
+	red = Color3.fromRGB(255, 0, 0),
+	green = Color3.fromRGB(0, 255, 0),
+	blue = Color3.fromRGB(0, 0, 255),
+	white = Color3.fromRGB(255, 255, 255),
+	black = Color3.fromRGB(0, 0, 0),
+	grey = Color3.fromRGB(128, 128, 128),
+	gray = Color3.fromRGB(128, 128, 128),
+	yellow = Color3.fromRGB(255, 255, 0),
+	purple = Color3.fromRGB(128, 0, 128),
+	pink = Color3.fromRGB(255, 192, 203),
+	orange = Color3.fromRGB(255, 165, 0),
+	cyan = Color3.fromRGB(0, 255, 255),
+	magenta = Color3.fromRGB(255, 0, 255),
+	brown = Color3.fromRGB(139, 69, 19)
+}
+
+local function parseColor(args)
+	local firstArg = args[1]
+	if not firstArg then return nil end
+	
+	local name = firstArg:lower()
+	if colorsList[name] then
+		return colorsList[name]
+	end
+	
+	if firstArg:find(",") then
+		local rgb = splitString(firstArg, ",")
+		local r = tonumber(rgb[1])
+		local g = tonumber(rgb[2])
+		local b = tonumber(rgb[3])
+		if r and g and b then
+			return Color3.fromRGB(r, g, b)
+		end
+	end
+	
+	local r = tonumber(args[1])
+	local g = tonumber(args[2])
+	local b = tonumber(args[3])
+	if r and g and b then
+		return Color3.fromRGB(r, g, b)
+	end
+	
+	local success, hexColor = pcall(function()
+		local hexStr = firstArg
+		if not hexStr:find("^#") and #hexStr == 6 then
+			hexStr = "#" .. hexStr
+		end
+		return Color3.fromHex(hexStr)
+	end)
+	if success and hexColor then
+		return hexColor
+	end
+	
+	return nil
+end
+
+addcmd('fog', {}, function(args, speaker)
+	local color = parseColor(args)
+	if color then
+		Lighting.FogColor = color
+		if Lighting.FogEnd >= 100000 then
+			Lighting.FogEnd = 1000
+		end
+		notify('Fog Color', 'Set fog color to RGB: ' .. math.round(color.R*255) .. ', ' .. math.round(color.G*255) .. ', ' .. math.round(color.B*255))
+	else
+		notify('Fog Color', 'Invalid color. Use a name (red, blue), hex (#ff55ff), or RGB (255 100 50)')
+	end
+end)
+
+-- ==========================================
+-- OPTIMIZATIONS
+-- ==========================================
+
+-- Optimize ESP: Throttle text updates to 10fps instead of 60fps
+local espFrameCounter = 0
+local originalRenderStepped = RunService.RenderStepped
+
 IYMouse.Move:Connect(checkTT)
+
 
 CaptureService.CaptureBegan:Connect(function()
 	PARENT.Enabled = false
@@ -13168,101 +14874,7 @@ CaptureService.CaptureEnded:Connect(function()
 	end)
 end)
 
-task.spawn(function()
-	local success, latestVersionInfo = pcall(function() 
-		local versionJson = game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/version")
-		return HttpService:JSONDecode(versionJson)
-	end)
 
-	if success then
-		if currentVersion ~= latestVersionInfo.Version then
-			notify("Outdated", "Get the new version at infyiff.github.io")
-		end
-
-		if latestVersionInfo.Announcement and latestVersionInfo.Announcement ~= "" then
-			local AnnGUI = Instance.new("Frame")
-			local background = Instance.new("Frame")
-			local TextBox = Instance.new("TextLabel")
-			local shadow = Instance.new("Frame")
-			local PopupText = Instance.new("TextLabel")
-			local Exit = Instance.new("TextButton")
-			local ExitImage = Instance.new("ImageLabel")
-
-			AnnGUI.Name = randomString()
-			AnnGUI.Parent = ScaledHolder
-			AnnGUI.Active = true
-			AnnGUI.BackgroundTransparency = 1
-			AnnGUI.Position = UDim2.new(0.5, -180, 0, -500)
-			AnnGUI.Size = UDim2.new(0, 360, 0, 20)
-			AnnGUI.ZIndex = 10
-
-			background.Name = "background"
-			background.Parent = AnnGUI
-			background.Active = true
-			background.BackgroundColor3 = currentShade1
-			background.BorderSizePixel = 0
-			background.Position = UDim2.new(0, 0, 0, 20)
-			background.Size = UDim2.new(0, 360, 0, 150)
-			background.ZIndex = 10
-
-			TextBox.Parent = background
-			TextBox.BackgroundTransparency = 1
-			TextBox.Position = UDim2.new(0, 5, 0, 5)
-			TextBox.Size = UDim2.new(0, 350, 0, 140)
-			TextBox.Font = Enum.Font.SourceSans
-			TextBox.TextSize = 18
-			TextBox.TextWrapped = true
-			TextBox.Text = latestVersionInfo.Announcement
-			TextBox.TextColor3 = currentText1
-			TextBox.TextXAlignment = Enum.TextXAlignment.Left
-			TextBox.TextYAlignment = Enum.TextYAlignment.Top
-			TextBox.ZIndex = 10
-
-			shadow.Name = "shadow"
-			shadow.Parent = AnnGUI
-			shadow.BackgroundColor3 = currentShade2
-			shadow.BorderSizePixel = 0
-			shadow.Size = UDim2.new(0, 360, 0, 20)
-			shadow.ZIndex = 10
-
-			PopupText.Name = "PopupText"
-			PopupText.Parent = shadow
-			PopupText.BackgroundTransparency = 1
-			PopupText.Size = UDim2.new(1, 0, 0.95, 0)
-			PopupText.ZIndex = 10
-			PopupText.Font = Enum.Font.SourceSans
-			PopupText.TextSize = 14
-			PopupText.Text = "Server Announcement"
-			PopupText.TextColor3 = currentText1
-			PopupText.TextWrapped = true
-
-			Exit.Name = "Exit"
-			Exit.Parent = shadow
-			Exit.BackgroundTransparency = 1
-			Exit.Position = UDim2.new(1, -20, 0, 0)
-			Exit.Size = UDim2.new(0, 20, 0, 20)
-			Exit.Text = ""
-			Exit.ZIndex = 10
-
-			ExitImage.Parent = Exit
-			ExitImage.BackgroundColor3 = Color3.new(1, 1, 1)
-			ExitImage.BackgroundTransparency = 1
-			ExitImage.Position = UDim2.new(0, 5, 0, 5)
-			ExitImage.Size = UDim2.new(0, 10, 0, 10)
-			ExitImage.Image = getcustomasset("infiniteyield/assets/close.png")
-			ExitImage.ZIndex = 10
-
-			task.wait(1)
-			AnnGUI:TweenPosition(UDim2.new(0.5, -180, 0, 150), "InOut", "Quart", 0.5, true, nil)
-
-			Exit.MouseButton1Click:Connect(function()
-				AnnGUI:TweenPosition(UDim2.new(0.5, -180, 0, -500), "InOut", "Quart", 0.5, true, nil)
-				task.wait(0.6)
-				AnnGUI:Destroy()
-			end)
-		end
-	end
-end)
 
 task.spawn(function()
     task.wait()
