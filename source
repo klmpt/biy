@@ -5211,6 +5211,7 @@ CMDs[#CMDs + 1] = {NAME = 'silentaimteamcheck / saimteam', DESC = 'Toggles silen
 CMDs[#CMDs + 1] = {NAME = 'silentaimdrawfov / saimcircle', DESC = 'Toggles displaying the 2D silent aim FOV circle'}
 CMDs[#CMDs + 1] = {NAME = 'videodisplay / vd [asset]', DESC = 'Displays a movable and resizable video on the screen'}
 CMDs[#CMDs + 1] = {NAME = 'fog [color]', DESC = 'Sets the fog color (name, hex, or RGB)'}
+CMDs[#CMDs + 1] = {NAME = 'checkversion / update / version', DESC = 'Checks for Biy updates and announcements'}
 -- task.wait()
 
 for i = 1, #CMDs do
@@ -14853,6 +14854,32 @@ addcmd('fog', {}, function(args, speaker)
 	end
 end)
 
+addcmd('checkversion', {'update', 'version'}, function(args, speaker)
+	notify("Version Check", "Checking for updates...")
+	task.spawn(function()
+		local success, err = pcall(function()
+			local raw = game:HttpGet("https://raw.githubusercontent.com/klmpt/biy/refs/heads/master/version")
+			local data = HttpService:JSONDecode(raw)
+			if data and data.Version then
+				if data.Version ~= currentVersion then
+					notify("Update Available", "New update: Biy v" .. data.Version .. " is available! (Current: " .. currentVersion .. ")")
+				else
+					notify("Version Check", "Biy is up to date (v" .. currentVersion .. ")")
+				end
+				if data.Announcement and data.Announcement ~= "" then
+					task.wait(1.5)
+					notify("Biy Announcement", data.Announcement)
+				end
+			else
+				notify("Version Check", "Failed to parse update data")
+			end
+		end)
+		if not success then
+			notify("Version Check", "Error fetching update data")
+		end
+	end)
+end)
+
 -- ==========================================
 -- OPTIMIZATIONS
 -- ==========================================
@@ -14892,4 +14919,19 @@ task.spawn(function()
     Credits:Destroy()
     IntroBackground:Destroy()
     minimizeHolder()
+    task.spawn(function()
+        pcall(function()
+            local raw = game:HttpGet("https://raw.githubusercontent.com/klmpt/biy/refs/heads/master/version")
+            local data = HttpService:JSONDecode(raw)
+            if data and data.Version then
+                if data.Version ~= currentVersion then
+                    notify("Update Available", "Biy is outdated! Latest: v" .. data.Version .. " (Current: v" .. currentVersion .. ")")
+                end
+                if data.Announcement and data.Announcement ~= "" then
+                    task.wait(2)
+                    notify("Announcement", data.Announcement)
+                end
+            end
+        end)
+    end)
 end)
