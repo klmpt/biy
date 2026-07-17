@@ -1,24 +1,21 @@
-# Infinite Yield
+# Better Infinite Yield
 
-The best command line script for roblox.
+The fork of best command line script for roblox.
 
 [![](https://dcbadge.limes.pink/api/server/https://discord.gg/78ZuWSq)](https://discord.gg/78ZuWSq)
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/klmpt/biy/refs/heads/master/source"))()
 ```
 
- - Currently 400 commands
+ - Currently 500+ commands
  - Open Source
- - 8+ years of development
 
 ## Developers
 
-### Creator: [Edge](https://github.com/EdgeIY)
-### Developers: [Moon](https://github.com/LorekeeperZinnia), [Zwolf](https://github.com/luatsuki), [Hunter](https://github.com/tooslzy), [Toon](https://github.com/Toon-arch), [Peyton](https://github.com/peyton2465), [ATP](https://github.com/ionizedparticle)
+### Creator of Inf Yield: [Edge](https://github.com/EdgeIY)
+### Developers of Inf Yield: [Moon](https://github.com/LorekeeperZinnia), [Zwolf](https://github.com/luatsuki), [Hunter](https://github.com/tooslzy), [Toon](https://github.com/Toon-arch), [Peyton](https://github.com/peyton2465), [ATP](https://github.com/ionizedparticle)
+## Creator of Better Inf Yield: [Kubydog Github](https://github.com/klmpt) or [Kubydog Scriptblox](https://scriptblox.com/u/kubydog)
 
 ## Usage
-You can learn how to use all the features of this script in [the wiki](https://github.com/EdgeIY/infiniteyield/wiki)!
-
-## Contributing
-There is no specific rules on contributing (as of now) just open a [pull request](https://github.com/EdgeIY/infiniteyield/pulls) and if it checks out we will merge it!
+You can learn how to use all the features of this script in [the wiki](https://github.com/klmpt/biy/wiki)!
