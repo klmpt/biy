@@ -19,3 +19,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+-------------------------------------------------------------------------------
+ADDITIONAL CONDITION: Better Infinite Yield (BIY)
+
+1. Any use, distribution, sublicensing, or modification of the Software, in
+   whole or in part, must comply with the Better Infinite Yield (BIY)
+   principles as defined below.
+
+2. "Better Infinite Yield (BIY)" means that any derivative work, redistribution,
+   or service built upon the Software must:
+   a) preserve and make publicly available the original copyright notice and
+      this license text, including this BIY condition;
+   b) not impose additional restrictions on the rights granted by the MIT
+      License to downstream recipients;
+   c) clearly attribute the original authorship to EdgeIY in any public
+      documentation, about screen, or credits associated with the Software or
+      its derivatives.
+
+3. This BIY condition is an additional term and does not replace, limit, or
+   alter the permissions, warranties, or disclaimers of the MIT License above.
+   In case of conflict between this BIY condition and the MIT License, the
+   MIT License shall prevail for the permissions granted, and this BIY
+   condition shall be interpreted as narrowly as possible to remain consistent
+   with the MIT License.
+
+4. If any provision of this BIY condition is found unenforceable, the remaining
+   provisions shall remain in full force and effect.
+-------------------------------------------------------------------------------
